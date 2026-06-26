@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Sign In | Saanvi Boutique & Matching Center</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            burgundy: "#7d2841",
+            cream: "#e6e5b9",
+            "burgundy-dark": "#5c1c30",
+            "cream-light": "#f5f4e4",
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+          },
+        },
+      },
+    };
+
+    const SUPABASE_URL = "https://oemyhcypthjkuglixpso.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lbXloY3lwdGhqa3VnbGl4cHNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzY1NzIsImV4cCI6MjA5Nzc1MjU3Mn0.yUNMbk7bOch_bzG5ohDbPKI2F3_g36hXBjgM4YzYTk8";
+
+    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    });
+  </script>
+  <!-- Global Auth Navigation -->
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+
+  <style>
+    .form-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(125, 40, 65, 0.2);
+      border-color: #7d2841;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    #admin-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 9999px;
+      background: #7d2841;
+      opacity: 0.35;
+      transition: opacity 0.2s ease;
+    }
+    #admin-dot:hover { opacity: 0.85; }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased min-h-screen flex flex-col">
+
+  <header class="bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <a href="index.html" class="flex items-center gap-3">
+          <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+          <div>
+            <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+            <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+          </div>
+        </a>
+        <a href="index.html" class="text-cream/80 hover:text-cream text-sm font-medium transition">← Back to Home</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center py-16 px-4">
+    <div class="max-w-md w-full">
+      <div class="text-center mb-10">
+        <h1 id="panel-title" class="font-display text-4xl text-burgundy font-semibold mb-3">Welcome Back</h1>
+        <p id="panel-subtitle" class="text-gray-500">Sign in to your account</p>
+      </div>
+
+      <div class="relative glass-card rounded-2xl shadow-xl p-8 sm:p-10 border-t-4 border-burgundy">
+        <button type="button" id="admin-dot" class="absolute top-4 right-4" aria-label="Admin access" title=""></button>
+
+        <!-- Toggle Tabs -->
+        <div class="flex border-b border-gray-200 mb-6 text-sm font-semibold">
+          <button type="button" id="tab-signin" class="flex-1 pb-3 text-burgundy border-b-2 border-burgundy transition-all duration-300">Sign In</button>
+          <button type="button" id="tab-signup" class="flex-1 pb-3 text-gray-400 border-b-2 border-transparent hover:text-burgundy transition-all duration-300">Sign Up</button>
+        </div>
+
+        <!-- Customer panel -->
+        <form id="customer-form" class="space-y-6">
+          <div>
+            <label for="customer-email" class="block text-sm font-semibold text-burgundy mb-2">Username or Email</label>
+            <input type="text" id="customer-email" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="Enter username or email" />
+          </div>
+          <div>
+            <label for="customer-password" class="block text-sm font-semibold text-burgundy mb-2">Password</label>
+            <input type="password" id="customer-password" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="••••••••" />
+          </div>
+          <div id="customer-error" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg"></div>
+          <button type="submit" id="customer-btn" class="w-full py-4 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg disabled:opacity-60">
+            Sign In
+          </button>
+          
+          <!-- OR divider -->
+          <div class="relative flex items-center justify-center my-2">
+            <div class="border-t border-gray-200 w-full"></div>
+            <span class="absolute bg-cream-light px-3 text-[10px] text-gray-400 font-bold uppercase tracking-wider">Or</span>
+          </div>
+
+          <!-- Google OAuth Button -->
+          <button type="button" id="google-btn" class="w-full py-3.5 bg-white border border-gray-200 rounded-full font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition flex items-center justify-center gap-3 shadow-xs disabled:opacity-60">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <p class="text-center text-sm text-gray-500">
+            Don't have an account?
+            <a href="contact.html" class="text-burgundy font-semibold hover:underline">Contact us</a>
+          </p>
+        </form>
+
+        <!-- Admin panel (hidden by default) -->
+        <form id="admin-form" class="hidden space-y-6">
+          <div>
+            <label for="admin-username" class="block text-sm font-semibold text-burgundy mb-2">Admin Username</label>
+            <input type="text" id="admin-username" class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="Admin username or email" autocomplete="username" />
+          </div>
+          <div>
+            <label for="admin-password" class="block text-sm font-semibold text-burgundy mb-2">Admin Password</label>
+            <input type="password" id="admin-password" class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <div id="admin-error" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg"></div>
+          <button type="submit" id="admin-btn" class="w-full py-4 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg disabled:opacity-60">
+            Enter Admin Workspace
+          </button>
+          <button type="button" id="back-customer-btn" class="w-full py-2 text-sm text-gray-500 hover:text-burgundy transition">
+            ← Back to customer sign in
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-cream/50">
+      <p class="mb-2"><a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a></p>
+      <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    const ADMIN_USERS = ["saanvi", "saanvibotique@gmail.com", "saanvobotique@gmail.com"];
+    const ADMIN_PASSWORD = "saanvibotique@#4102";
+    const ADMIN_PASSWORD_ALT = "saanvobotique@#4102"; // common typo tolerance for local admin gate
+
+    const customerForm = document.getElementById("customer-form");
+    const adminForm = document.getElementById("admin-form");
+    const adminDot = document.getElementById("admin-dot");
+    const panelTitle = document.getElementById("panel-title");
+    const panelSubtitle = document.getElementById("panel-subtitle");
+    const customerError = document.getElementById("customer-error");
+    const adminError = document.getElementById("admin-error");
+    const backCustomerBtn = document.getElementById("back-customer-btn");
+
+    function showFlash(el, message) {
+      el.textContent = message;
+      el.classList.remove("hidden");
+    }
+
+    function hideFlash(el) {
+      el.classList.add("hidden");
+      el.textContent = "";
+    }
+
+    function grantAdminAccess() {
+      sessionStorage.setItem("admin_session", "authenticated");
+      window.location.href = "admin-portal/dashboard.html";
+    }
+
+    function isHardcodedAdmin(identity, password) {
+      const user = identity.trim().toLowerCase();
+      const validPassword = password === ADMIN_PASSWORD || password === ADMIN_PASSWORD_ALT;
+      return ADMIN_USERS.includes(user) && validPassword;
+    }
+
+    async function trySupabaseAdminLogin(email, password) {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (error) return { ok: false, message: error.message };
+
+      const { data: profile, error: profileError } = await window.supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError || !profile || profile.role !== "admin") {
+        await window.supabaseClient.auth.signOut();
+        return { ok: false, message: "This account does not have admin access." };
+      }
+
+      return { ok: true };
+    }
+
+    adminDot.addEventListener("click", () => {
+      customerForm.classList.add("hidden");
+      adminForm.classList.remove("hidden");
+      panelTitle.textContent = "Admin Authentication";
+      panelSubtitle.textContent = "Authorized personnel only";
+      hideFlash(customerError);
+      hideFlash(adminError);
+    });
+
+    backCustomerBtn.addEventListener("click", () => {
+      adminForm.classList.add("hidden");
+      customerForm.classList.remove("hidden");
+      panelTitle.textContent = "Welcome Back";
+      panelSubtitle.textContent = "Sign in to your account";
+      hideFlash(adminError);
+    });
+
+    adminForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideFlash(adminError);
+
+      const identity = document.getElementById("admin-username").value;
+      const password = document.getElementById("admin-password").value;
+      const adminBtn = document.getElementById("admin-btn");
+      adminBtn.disabled = true;
+      adminBtn.textContent = "Verifying…";
+
+      try {
+        if (isHardcodedAdmin(identity, password)) {
+          grantAdminAccess();
+          return;
+        }
+
+        if (identity.includes("@")) {
+          const result = await trySupabaseAdminLogin(identity, password);
+          if (result.ok) {
+            grantAdminAccess();
+            return;
+          }
+          showFlash(adminError, result.message || "Invalid admin credentials.");
+          return;
+        }
+
+        showFlash(adminError, "Invalid admin credentials. Check username/email and password.");
+      } catch (err) {
+        console.error(err);
+        showFlash(adminError, "Unable to sign in. Please try again.");
+      } finally {
+        adminBtn.disabled = false;
+        adminBtn.textContent = "Enter Admin Workspace";
+      }
+    });
+
+    // Toggle tab logic
+    let isSignUpMode = false;
+    const tabSignIn = document.getElementById("tab-signin");
+    const tabSignUp = document.getElementById("tab-signup");
+    const customerBtn = document.getElementById("customer-btn");
+
+    function setMode(signUp) {
+      isSignUpMode = signUp;
+      if (isSignUpMode) {
+        tabSignUp.classList.add("text-burgundy", "border-burgundy");
+        tabSignUp.classList.remove("text-gray-400", "border-transparent");
+        tabSignIn.classList.add("text-gray-400", "border-transparent");
+        tabSignIn.classList.remove("text-burgundy", "border-burgundy");
+        
+        panelTitle.textContent = "Create Account";
+        panelSubtitle.textContent = "Register a new boutique account";
+        customerBtn.textContent = "Sign Up";
+      } else {
+        tabSignIn.classList.add("text-burgundy", "border-burgundy");
+        tabSignIn.classList.remove("text-gray-400", "border-transparent");
+        tabSignUp.classList.add("text-gray-400", "border-transparent");
+        tabSignUp.classList.remove("text-burgundy", "border-burgundy");
+        
+        panelTitle.textContent = "Welcome Back";
+        panelSubtitle.textContent = "Sign in to your account";
+        customerBtn.textContent = "Sign In";
+      }
+      hideFlash(customerError);
+    }
+
+    tabSignIn.addEventListener("click", () => setMode(false));
+    tabSignUp.addEventListener("click", () => setMode(true));
+
+    customerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideFlash(customerError);
+
+      let email = document.getElementById("customer-email").value.trim().toLowerCase();
+      const password = document.getElementById("customer-password").value;
+      
+      // If it's a simple username, append a local domain to make it a valid email for Supabase
+      if (!email.includes("@")) {
+        email = email + "@saanvi.local";
+      }
+
+      customerBtn.disabled = true;
+      customerBtn.textContent = isSignUpMode ? "Registering…" : "Signing in…";
+
+      try {
+        if (isSignUpMode) {
+          // Sign Up Flow
+          const { data, error } = await window.supabaseClient.auth.signUp({
+            email,
+            password
+          });
+          
+          if (error) {
+            showFlash(customerError, error.message);
+            return;
+          }
+          
+          // Sign in automatically after sign up succeeds
+          const { error: signInErr } = await window.supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
+          
+          if (signInErr) {
+            showFlash(customerError, "Account created successfully! Please Sign In.");
+            setMode(false);
+            return;
+          }
+
+          window.location.href = "index.html";
+        } else {
+          // Sign In Flow
+          // Allow admin email/password on the main form too
+          if (isHardcodedAdmin(email, password)) {
+            grantAdminAccess();
+            return;
+          }
+
+          if (ADMIN_USERS.includes(email.toLowerCase()) || email.includes("@")) {
+            const adminAttempt = await trySupabaseAdminLogin(email, password);
+            if (adminAttempt.ok) {
+              grantAdminAccess();
+              return;
+            }
+          }
+
+          const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) {
+            showFlash(customerError, error.message);
+            return;
+          }
+
+          window.location.href = "index.html";
+        }
+      } catch (err) {
+        console.error(err);
+        showFlash(customerError, isSignUpMode ? "Registration failed. Please try again." : "Sign in failed. Please try again.");
+      } finally {
+        customerBtn.disabled = false;
+        customerBtn.textContent = isSignUpMode ? "Sign Up" : "Sign In";
+      }
+    });
+
+    // Google Sign-In Event Listener
+    const googleBtn = document.getElementById("google-btn");
+    googleBtn.addEventListener("click", async () => {
+      googleBtn.disabled = true;
+      const originalText = googleBtn.innerHTML;
+      googleBtn.innerHTML = "Connecting…";
+      hideFlash(customerError);
+      
+      try {
+        const { error } = await window.supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + '/index.html'
+          }
+        });
+        if (error) {
+          showFlash(customerError, error.message);
+          googleBtn.disabled = false;
+          googleBtn.innerHTML = originalText;
+        }
+      } catch (err) {
+        console.error(err);
+        showFlash(customerError, "Google authentication failed. Please try again.");
+        googleBtn.disabled = false;
+        googleBtn.innerHTML = originalText;
+      }
+    });
+
+    // If already authenticated, go straight to dashboard
+    if (sessionStorage.getItem("admin_session") === "authenticated") {
+      window.location.href = "admin-portal/dashboard.html";
+    }
+  </script>
+</body>
+</html>

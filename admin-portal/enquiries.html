@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Saanvi Boutique | Customer Enquiries</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin-config.js"></script>
+    <script src="admin-guard.js"></script>
+    <script>
+        document.addEventListener("admin:authenticated", () => {
+            const container = document.getElementById("dashboard-container");
+            if (container) container.classList.remove("hidden");
+        });
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#7d2841",
+                        "primary-dark": "#5c1c30",
+                        cream: "#e6e5b9",
+                        "cream-light": "#f5f4e4"
+                    },
+                    fontFamily: {
+                        display: ["Playfair Display", "serif"],
+                        sans: ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-cream-light font-sans text-gray-800 antialiased min-h-screen">
+
+    <div id="dashboard-container" class="hidden min-h-screen flex flex-col">
+        <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="../logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                    <div>
+                        <p class="font-display text-cream text-base sm:text-lg font-semibold leading-tight">Admin Hub</p>
+                        <p class="text-white/70 text-[10px] tracking-widest uppercase">Saanvi Boutique</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="dashboard.html" class="text-white/80 hover:text-white font-medium transition">Dashboard</a>
+                    <a href="sections.html" class="text-white/80 hover:text-white font-medium transition">Categories</a>
+                    <a href="receipts.html" class="text-white/80 hover:text-white font-medium transition">Receipts</a>
+                    <a href="manage.html" class="text-white/80 hover:text-white font-medium transition">Manage Works</a>
+                    <a href="enquiries.html" class="text-cream font-medium border-b-2 border-cream pb-1">Enquiries</a>
+                    <a href="settings.html" class="text-white/80 hover:text-white font-medium transition">Settings</a>
+                    <button onclick="logout()" class="px-4 py-2 bg-cream text-primary rounded-full font-semibold hover:bg-white transition text-sm shadow-sm">Sign Out</button>
+                </div>
+
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-cream hover:text-white focus:outline-none flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+
+            <div id="mobile-drawer" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex">
+                <div id="drawer-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                
+                <div class="relative w-72 max-w-[80vw] bg-primary h-full shadow-2xl p-6 flex flex-col justify-between z-10 ml-auto">
+                    <div class="space-y-8">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <div class="flex items-center gap-2">
+                                <img src="../logo.png" class="w-8 h-8 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                                <span class="font-display font-bold text-cream">Navigation</span>
+                            </div>
+                            <button id="close-drawer-btn" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+                        </div>
+                        <nav class="flex flex-col gap-4 text-lg">
+                            <a href="dashboard.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+                            <a href="sections.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">category</span> Categories</a>
+                            <a href="receipts.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">receipt</span> Receipts</a>
+                            <a href="manage.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">collections</span> Manage Works</a>
+                            <a href="enquiries.html" class="text-cream font-semibold bg-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">mail</span> Enquiries</a>
+                            <a href="settings.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">settings</span> Settings</a>
+                        </nav>
+                    </div>
+                    <button onclick="logout()" class="w-full py-3.5 bg-cream text-primary rounded-xl font-bold transition shadow-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sm">logout</span> Sign Out Workspace</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl text-primary font-bold">Client Consultation Leads</h1>
+                    <p class="text-gray-500 text-xs sm:text-sm">Review customer product queries and customized order follow-ups directly.</p>
+                </div>
+                
+                <div class="flex items-center bg-white border border-gray-200 p-1 rounded-xl self-start sm:self-auto shadow-xs">
+                    <button id="filter-all" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-primary text-cream transition shadow-xs">All</button>
+                    <button id="filter-pending" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-primary transition">New</button>
+                    <button id="filter-completed" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-primary transition">Contacted</button>
+                </div>
+            </div>
+
+            <div id="enquiries-stack" class="space-y-4">
+                <div class="text-center py-16 text-primary/60 border border-dashed border-primary/20 rounded-xl bg-white">
+                    <div class="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+                    <p class="text-xs">Syncing customer leads from Supabase…</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-primary text-cream/60 py-5 text-center text-xs tracking-wide border-t border-primary-dark px-4 mt-auto">
+            &copy; 2026 Saanvi Boutique & Matching Center. Secured Administrative Workspace.
+        </footer>
+    </div>
+
+    <script>
+        // Drawer Menu View Handlers
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileDrawer = document.getElementById("mobile-drawer");
+        const closeDrawerBtn = document.getElementById("close-drawer-btn");
+        const drawerBackdrop = document.getElementById("drawer-backdrop");
+
+        function openMenu() {
+            mobileDrawer.classList.remove("translate-x-full");
+            drawerBackdrop.classList.remove("pointer-events-none", "opacity-0");
+            drawerBackdrop.classList.add("opacity-100");
+        }
+
+        function closeMenu() {
+            mobileDrawer.classList.add("translate-x-full");
+            drawerBackdrop.classList.remove("opacity-100");
+            drawerBackdrop.classList.add("opacity-0", "pointer-events-none");
+        }
+
+        mobileMenuBtn.addEventListener("click", openMenu);
+        closeDrawerBtn.addEventListener("click", closeMenu);
+        drawerBackdrop.addEventListener("click", closeMenu);
+
+        async function logout() {
+            adminLogout();
+        }
+
+        // Dynamic Enquiries Management System
+        let allEnquiries = [];
+        let currentFilter = "all";
+
+        const btnAll = document.getElementById("filter-all");
+        const btnPending = document.getElementById("filter-pending");
+        const btnCompleted = document.getElementById("filter-completed");
+
+        async function fetchEnquiries() {
+            if (!window.supabaseClient) {
+                console.error("Supabase client is not loaded.");
+                return;
+            }
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from("enquiries")
+                    .select("*")
+                    .order("created_at", { ascending: false });
+
+                if (error) throw error;
+                allEnquiries = data || [];
+                renderEnquiries();
+            } catch (err) {
+                console.error("Failed to fetch enquiries:", err);
+                document.getElementById("enquiries-stack").innerHTML = `
+                    <div class="col-span-full text-center py-16 text-red-600 font-medium">
+                        Failed to load enquiries from database. Please check connection and policies.
+                    </div>
+                `;
+            }
+        }
+
+        function renderEnquiries() {
+            const stack = document.getElementById("enquiries-stack");
+            
+            // Filter locally based on current selection
+            const filtered = allEnquiries.filter(item => {
+                if (currentFilter === "all") return true;
+                if (currentFilter === "pending") return item.status === "pending";
+                if (currentFilter === "completed") return item.status === "completed";
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                stack.innerHTML = `
+                    <div class="text-center py-16 text-primary/60 border border-dashed border-primary/20 rounded-xl bg-white">
+                        <p class="font-display text-xl font-bold">No Customer Enquiries Found</p>
+                        <p class="text-xs mt-1">Queries submitted via storefront appointment bookings will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            stack.innerHTML = filtered.map(item => {
+                const isNew = item.status === "pending";
+                const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric"
+                }) : "Date Unknown";
+
+                // Clean phone number
+                let rawPhone = item.phone_number || "";
+                let cleanPhone = rawPhone.replace(/\D/g, "");
+                if (cleanPhone.length === 10) {
+                    cleanPhone = "91" + cleanPhone;
+                }
+
+                const escapedMsg = (item.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                return `
+                    <div class="bg-white rounded-2xl shadow-xs border border-gray-100 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:border-primary/20 transition duration-300" data-status="${item.status}">
+                        <div class="space-y-2 max-w-2xl">
+                            <div class="flex flex-wrap items-center gap-2">
+                                ${isNew 
+                                    ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider bg-rose-100 text-rose-700 animate-pulse">New Lead</span>`
+                                    : `<span class="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider bg-gray-100 text-gray-500">Contacted</span>`
+                                }
+                                <span class="text-xs text-gray-400 font-mono">${dateStr}</span>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-bold ${isNew ? 'text-gray-800' : 'text-gray-400 line-through'} font-display">
+                                ${item.customer_name || "Anonymous"} 
+                                <span class="text-xs font-sans font-normal text-gray-400 ml-1">(${rawPhone})</span>
+                            </h3>
+                            <p class="text-xs sm:text-sm ${isNew ? 'text-gray-600' : 'text-gray-400 italic'} leading-relaxed whitespace-pre-line">${escapedMsg}</p>
+                        </div>
+                        <div class="flex items-center gap-2 self-end md:self-auto border-t border-gray-50 pt-3 md:pt-0 w-full md:w-auto justify-end">
+                            <button onclick="toggleStatus(${item.id}, '${item.status}')" class="px-3 py-1.5 ${isNew ? 'bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600' : 'bg-emerald-50 text-emerald-700'} rounded-lg text-xs font-semibold transition flex items-center gap-1" title="${isNew ? 'Mark as Contacted' : 'Reopen Lead'}">
+                                <span class="material-symbols-outlined text-sm">${isNew ? 'check_circle' : 'lock_open'}</span> 
+                                ${isNew ? 'Update Status' : 'Reopen'}
+                            </button>
+                            ${cleanPhone 
+                                ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
+                                      <span class="material-symbols-outlined text-sm">chat</span> WhatsApp Client
+                                   </a>`
+                                : ""
+                            }
+                            <button onclick="deleteEnquiry(${item.id})" class="delete-lead-btn p-1.5 text-gray-300 hover:text-red-600 transition" title="Delete Entry">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        async function toggleStatus(id, currentStatus) {
+            const newStatus = currentStatus === "pending" ? "completed" : "pending";
+            try {
+                const { error } = await window.supabaseClient
+                    .from("enquiries")
+                    .update({ status: newStatus })
+                    .eq("id", id);
+
+                if (error) throw error;
+                await fetchEnquiries();
+            } catch (err) {
+                console.error("Failed to toggle status:", err);
+                alert("Failed to update status in Supabase. Check RLS policies.");
+            }
+        }
+
+        async function deleteEnquiry(id) {
+            if (!confirm("Are you sure you want to completely discard this customer request profile entry?")) return;
+            try {
+                const { error } = await window.supabaseClient
+                    .from("enquiries")
+                    .delete()
+                    .eq("id", id);
+
+                if (error) throw error;
+                await fetchEnquiries();
+            } catch (err) {
+                console.error("Failed to delete enquiry:", err);
+                alert("Failed to delete request. Check RLS policies.");
+            }
+        }
+
+        function applyFilter(activeBtn, statusType) {
+            [btnAll, btnPending, btnCompleted].forEach(btn => {
+                btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-primary transition";
+            });
+            activeBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-primary text-cream transition shadow-xs";
+            
+            currentFilter = statusType;
+            renderEnquiries();
+        }
+
+        btnAll.addEventListener("click", () => applyFilter(btnAll, "all"));
+        btnPending.addEventListener("click", () => applyFilter(btnPending, "pending"));
+        btnCompleted.addEventListener("click", () => applyFilter(btnCompleted, "completed"));
+
+        // Load data on page init
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchEnquiries();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Vercel
+.vercel
+
+# Node Modules
+node_modules/
+
+# Compiled web assets
+www/
+
+# Android build and configuration
+.gradle/
+build/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+
+# Logs and system files
+*.log
+.DS_Store
+Thumbs.db

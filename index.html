@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saanvi Boutique & Matching Center | Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            burgundy: "#7d2841",
+            cream: "#e6e5b9",
+            "burgundy-dark": "#5c1c30",
+            "cream-light": "#f5f4e4",
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+          },
+          animation: {
+            "fade-up": "fadeUp 0.8s ease-out forwards",
+            "fade-in": "fadeIn 1s ease-out forwards",
+            float: "float 6s ease-in-out infinite",
+          },
+          keyframes: {
+            fadeUp: {
+              "0%": { opacity: "0", transform: "translateY(30px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" },
+            },
+            fadeIn: {
+              "0%": { opacity: "0" },
+              "100%": { opacity: "1" },
+            },
+            float: {
+              "0%, 100%": { transform: "translateY(0)" },
+              "50%": { transform: "translateY(-12px)" },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(230, 229, 185, 0.25);
+    }
+    .hero-gradient {
+      background: linear-gradient(135deg, #7d2841 0%, #5c1c30 50%, #3d1220 100%);
+    }
+    .collection-card:hover .collection-overlay {
+      opacity: 1;
+    }
+    .collection-card:hover img {
+      transform: scale(1.08);
+    }
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #e6e5b9;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+    /* Fixed SVG pattern styling directly in CSS to avoid inline HTML bracket conflicts */
+    .bg-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e6e5b9' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    /* Carousel sliding styles */
+    .carousel-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .carousel-slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <a href="index.html" class="flex items-center gap-3 group">
+          <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+          <div>
+            <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+            <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+          </div>
+        </a>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link active text-cream text-sm font-medium tracking-wide">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream font-medium py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Festive Banner Carousel Section -->
+  <section id="festive-carousel-section" class="pt-20 bg-burgundy-dark hidden relative overflow-hidden">
+    <div class="relative w-full aspect-[4/3] bg-neutral-900 overflow-hidden">
+      <!-- Slides Container -->
+      <div id="carousel-slides" class="w-full h-full relative"></div>
+      
+      <!-- Prev/Next Controls -->
+      <button id="carousel-prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full z-10 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button id="carousel-next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full z-10 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+      
+      <!-- Indicator Dots -->
+      <div id="carousel-indicators" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
+    </div>
+  </section>
+
+  <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden pt-20">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-20 left-10 w-72 h-72 bg-cream rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-cream rounded-full blur-3xl animate-float" style="animation-delay: -3s;"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
+      <div class="max-w-3xl">
+        <p class="text-cream/80 text-sm tracking-[0.3em] uppercase mb-6 animate-fade-up">Crafted with Elegance</p>
+        <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl text-cream font-semibold leading-tight mb-8 animate-fade-up" style="animation-delay: 0.1s;">
+          Where Tradition Meets <span class="italic text-cream/90">Timeless Style</span>
+        </h1>
+        <p class="text-cream/75 text-lg sm:text-xl leading-relaxed mb-10 max-w-xl animate-fade-up" style="animation-delay: 0.2s;">
+          Elegant, customized fashion that celebrates every woman's unique style — from bridal wear to designer blouses and ethnic collections in Nalgonda.
+        </p>
+        <div class="flex flex-wrap gap-4 animate-fade-up" style="animation-delay: 0.3s;">
+          <a href="collections.html" class="px-8 py-4 bg-cream text-burgundy font-semibold rounded-full hover:bg-white transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            Explore Collections
+          </a>
+          <a href="appointment.html" class="px-8 py-4 border-2 border-cream/50 text-cream font-semibold rounded-full hover:bg-cream/10 transition">
+            Book a Visit
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-cream/50 animate-bounce">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+    </div>
+  </section>
+
+  <section class="py-24 bg-cream-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <p class="text-burgundy text-sm tracking-[0.25em] uppercase mb-3 font-medium">Curated For You</p>
+        <h2 class="font-display text-4xl sm:text-5xl text-burgundy font-semibold">Featured Collections</h2>
+        <div class="w-24 h-1 bg-burgundy mx-auto mt-6 rounded-full"></div>
+      </div>
+      
+      <div id="featured-collections" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="col-span-full text-center py-12 text-burgundy/60">
+          <div class="inline-block w-8 h-8 border-2 border-burgundy/30 border-t-burgundy rounded-full animate-spin mb-4"></div>
+          <p>Loading collections…</p>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12">
+        <a href="collections.html" class="inline-flex items-center gap-2 text-burgundy font-semibold hover:gap-4 transition-all">
+          View All Collections
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-burgundy relative overflow-hidden">
+    <div class="absolute inset-0 opacity-5 bg-pattern"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center mb-16">
+        <p class="text-cream/70 text-sm tracking-[0.25em] uppercase mb-3">What We Offer</p>
+        <h2 class="font-display text-4xl sm:text-5xl text-cream font-semibold">Our Core Specialties</h2>
+        <p class="text-cream/60 mt-4 max-w-2xl mx-auto">Led by Founder & Head Fashion Designer <span class="text-cream font-medium">Aithagoni Madhavi</span></p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Custom Bridal Lehengas</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Bespoke bridal lehengas crafted for your special day.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Designer Sarees</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Elegant designer sarees for every occasion.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Aari Work & Embroidery</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Intricate hand embroidery and aari detailing.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Heavy Zardozi Blouses</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Luxurious zardozi blouses with rich embellishments.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Bridal & Tassels</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Curated collections for weddings and celebrations.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Matching Dress Materials</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Exclusive fabrics and perfectly coordinated sets.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Custom Outfit Designing</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Personalized designs that reflect your individuality.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center hover:transform hover:-translate-y-2 transition duration-300">
+          <h3 class="font-display text-lg text-cream mb-2">Alterations & Fittings</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Expert alterations for the perfect fit every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-burgundy text-sm tracking-[0.25em] uppercase mb-3 font-medium">Est. 2024 · Nalgonda</p>
+      <h2 class="font-display text-4xl text-burgundy font-semibold mb-6">Our Story</h2>
+      <p class="text-gray-600 text-lg leading-relaxed mb-4">
+        Saanvi Boutique was established in 2024 with a passion for creating elegant, customized fashion that celebrates every woman's unique style. Our mission is to blend traditional craftsmanship with modern fashion trends, delivering high-quality outfits that make every occasion special.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-8">
+        From bridal wear to designer blouses and ethnic collections, we focus on providing personalized designs that reflect beauty, confidence, and individuality — led by Founder & Head Fashion Designer <span class="text-burgundy font-semibold">Aithagoni Madhavi</span>.
+      </p>
+      <a href="about.html" class="inline-flex items-center gap-2 text-burgundy font-semibold hover:gap-4 transition-all">
+        Read More About Us
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="py-24 bg-cream">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <h2 class="font-display text-4xl sm:text-5xl text-burgundy font-semibold mb-6">Ready to Begin Your Style Journey?</h2>
+      <p class="text-gray-600 text-lg mb-10 leading-relaxed">Schedule a private consultation and let our team bring your vision to life with exquisite craftsmanship.</p>
+      <a href="appointment.html" class="inline-block px-10 py-4 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg">Book a Visit</a>
+    </div>
+  </section>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div class="lg:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <p class="font-display text-cream text-xl font-semibold">Saanvi Boutique & Matching Center</p>
+          </div>
+          <p class="text-cream/60 leading-relaxed max-w-md text-sm">Established in 2024 — blending traditional craftsmanship with modern fashion trends to deliver high-quality outfits that make every occasion special.</p>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Quick Links</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="collections.html" class="hover:text-cream transition">Collections</a></li>
+            <li><a href="our-works.html" class="hover:text-cream transition">Our Works</a></li>
+            <li><a href="about.html" class="hover:text-cream transition">About Us</a></li>
+            <li><a href="appointment.html" class="hover:text-cream transition">Book a Visit</a></li>
+            <li><a href="contact.html" class="hover:text-cream transition">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Contact Us</h4>
+          <ul class="space-y-3 text-sm">
+            <li>
+              <a href="https://maps.app.goo.gl/km36b9yDTx1jph556" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition leading-relaxed">
+                Opp. to Shivalayam, Ontisstambam,<br />Old City, Nalgonda, Telangana – 508001
+              </a>
+            </li>
+            <li>
+              <a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a>
+            </li>
+            <li>
+              <a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-cream transition">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp Us
+              </a>
+            </li>
+            <li>
+              <a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a>
+            </li>
+            <li class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>© 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+  </script>
+
+  <script type="module">
+    // Dynamic Festive Banner Carousel Engine
+    let activeCarouselIndex = 0;
+    let carouselInterval = null;
+    let carouselBanners = [];
+
+    async function initFestiveCarousel() {
+      const section = document.getElementById("festive-carousel-section");
+      const slidesContainer = document.getElementById("carousel-slides");
+      const dotsContainer = document.getElementById("carousel-indicators");
+
+      if (!window.supabaseClient) return;
+
+      try {
+        const { data, error } = await window.supabaseClient
+          .from("festive_banners")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          section.classList.add("hidden");
+          return;
+        }
+
+        carouselBanners = data;
+        section.classList.remove("hidden");
+
+        // Render slides
+        slidesContainer.innerHTML = data.map((banner, idx) => `
+          <div class="carousel-slide w-full h-full ${idx === 0 ? 'active' : ''}">
+            <img src="${banner.image_url}" class="w-full h-full object-cover animate-fade-in" alt="Festive Banner" />
+          </div>
+        `).join("");
+
+        // Render dots
+        dotsContainer.innerHTML = data.map((_, idx) => `
+          <button onclick="gotoCarouselSlide(${idx})" class="w-2.5 h-2.5 rounded-full border border-white/60 transition ${idx === 0 ? 'bg-white scale-110' : 'bg-white/40'}"></button>
+        `).join("");
+
+        // Setup auto slide every 3 seconds
+        startCarouselTimer();
+
+      } catch (err) {
+        console.error("Failed to load festive banners:", err);
+        section.classList.add("hidden");
+      }
+    }
+
+    window.gotoCarouselSlide = function(idx) {
+      if (idx === activeCarouselIndex) return;
+      
+      const slides = document.querySelectorAll(".carousel-slide");
+      const dots = document.getElementById("carousel-indicators").children;
+
+      if (!slides[idx]) return;
+
+      slides[activeCarouselIndex].classList.remove("active");
+      dots[activeCarouselIndex].classList.remove("bg-white", "scale-110");
+      dots[activeCarouselIndex].classList.add("bg-white/40");
+
+      activeCarouselIndex = idx;
+
+      slides[activeCarouselIndex].classList.add("active");
+      dots[activeCarouselIndex].classList.remove("bg-white/40");
+      dots[activeCarouselIndex].classList.add("bg-white", "scale-110");
+
+      // Reset timer
+      startCarouselTimer();
+    };
+
+    function startCarouselTimer() {
+      if (carouselInterval) clearInterval(carouselInterval);
+      if (carouselBanners.length <= 1) return;
+
+      carouselInterval = setInterval(() => {
+        const nextIdx = (activeCarouselIndex + 1) % carouselBanners.length;
+        gotoCarouselSlide(nextIdx);
+      }, 3000);
+    }
+
+    document.getElementById("carousel-prev-btn")?.addEventListener("click", () => {
+      if (carouselBanners.length <= 1) return;
+      const prevIdx = (activeCarouselIndex - 1 + carouselBanners.length) % carouselBanners.length;
+      gotoCarouselSlide(prevIdx);
+    });
+
+    document.getElementById("carousel-next-btn")?.addEventListener("click", () => {
+      if (carouselBanners.length <= 1) return;
+      const nextIdx = (activeCarouselIndex + 1) % carouselBanners.length;
+      gotoCarouselSlide(nextIdx);
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Initialize Festive Banner Carousel
+      await initFestiveCarousel();
+
+      // 2. Fetch Featured Collections
+      const gridContainer = document.getElementById("featured-collections");
+      if (!window.supabaseClient) {
+        gridContainer.innerHTML = `
+          <div class="col-span-full text-center py-12 text-red-600/80">
+            <p>Database error: Supabase client not loaded.</p>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const { data: categories, error } = await window.supabaseClient
+          .from('categories')
+          .select('id, name, description, slug, image_url, created_at')
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (error) throw error;
+
+        if (!categories || categories.length === 0) {
+          gridContainer.innerHTML = `
+            <div class="col-span-full text-center py-12 text-burgundy/60">
+              <p class="font-display text-xl">Collections coming soon</p>
+              <p class="text-sm mt-2">Check back shortly for our latest designs.</p>
+            </div>
+          `;
+          return;
+        }
+
+        gridContainer.innerHTML = categories.map(cat => buildCollectionCard(cat)).join("");
+
+      } catch (err) {
+        console.error("Supabase dynamic fetch failure:", err);
+        gridContainer.innerHTML = `
+          <div class="col-span-full text-center py-12 text-red-600/80">
+            <p>Unable to load collections. Please check your connection.</p>
+          </div>
+        `;
+      }
+    });
+
+    function buildCollectionCard(cat) {
+      const name = cat.name || "Untitled Collection";
+      const description = cat.description || "Explore this boutique category.";
+      const image = cat.image_url || "https://images.unsplash.com/photo-1583391735258-e251352654d2?w=600&q=80";
+      const slug = cat.slug || cat.id;
+
+      return `
+        <a href="inside-collection.html?slug=${encodeURIComponent(slug)}" class="collection-card group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 bg-white">
+          <div class="relative aspect-[3/4] overflow-hidden">
+            <img src="${image}" alt="${name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+            <div class="collection-overlay absolute inset-0 bg-burgundy/60 opacity-0 transition-opacity duration-300 flex items-end p-6">
+              <p class="text-cream text-sm leading-relaxed">${description}</p>
+            </div>
+          </div>
+          <div class="p-6 bg-white border-t-4 border-burgundy">
+            <h3 class="font-display text-xl text-burgundy font-semibold group-hover:text-burgundy-dark transition">${name}</h3>
+            <p class="text-gray-500 text-sm mt-2 flex items-center gap-1">
+              View Collection
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </p>
+          </div>
+        </a>
+      `;
+    }
+  </script>
+</body>
+</html>

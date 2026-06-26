@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | Saanvi Boutique & Matching Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { burgundy: "#7d2841", cream: "#e6e5b9", "burgundy-dark": "#5c1c30", "cream-light": "#f5f4e4" },
+          fontFamily: { display: ["Playfair Display", "serif"], sans: ["Plus Jakarta Sans", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+  <style>
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #e6e5b9; transition: width 0.3s ease; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(125, 40, 65, 0.2); border-color: #7d2841; }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link active text-cream text-sm font-medium tracking-wide">Contact</a>
+          <div id="auth-nav-container">
+            <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+          </div>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream font-medium py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="pt-32 pb-16 bg-burgundy">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-cream/70 text-sm tracking-[0.3em] uppercase mb-4">Get In Touch</p>
+      <h1 class="font-display text-5xl sm:text-6xl text-cream font-semibold">Contact Us</h1>
+      <div class="w-24 h-1 bg-cream mx-auto mt-8 rounded-full"></div>
+      <p class="text-cream/75 max-w-2xl mx-auto mt-8 text-lg leading-relaxed">Have a question or need assistance? We'd love to hear from you.</p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+        <div class="space-y-8">
+          <div>
+            <h2 class="font-display text-3xl text-burgundy font-semibold mb-6">Visit Saanvi Boutique</h2>
+            <p class="text-gray-600 leading-relaxed mb-8">Located in Nalgonda's Old City, our boutique welcomes you for personalized consultations, fabric selection, and custom designing with Aithagoni Madhavi.</p>
+          </div>
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-burgundy/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-burgundy mb-1">Address</h3>
+                <a href="https://maps.app.goo.gl/km36b9yDTx1jph556" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-burgundy transition leading-relaxed">
+                  Opp. to Shivalayam, Ontisstambam,<br />Old City, Nalgonda, Telangana – 508001
+                </a>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-burgundy/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-burgundy mb-1">Phone</h3>
+                <a href="tel:+917013404312" class="text-gray-600 hover:text-burgundy transition">+91 7013404312</a>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-burgundy/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-burgundy" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-burgundy mb-1">WhatsApp</h3>
+                <a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-burgundy transition">Message us on WhatsApp</a>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-burgundy/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-burgundy mb-1">Email</h3>
+                <a href="mailto:saanvibotique123@gmail.com" class="text-gray-600 hover:text-burgundy transition">saanvibotique123@gmail.com</a>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-burgundy/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-burgundy mb-1">Working Hours</h3>
+                <p class="text-gray-600">Monday – Saturday: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+              </div>
+            </div>
+          </div>
+          <a href="https://maps.app.goo.gl/km36b9yDTx1jph556" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+            Get Directions on Google Maps
+          </a>
+        </div>
+
+        <div id="contact-form-wrapper">
+          <form id="contact-form" class="bg-white rounded-2xl shadow-xl p-8 sm:p-10 border-t-4 border-burgundy space-y-6">
+            <h2 class="font-display text-2xl text-burgundy font-semibold mb-2">Send a Message</h2>
+            <p class="text-gray-500 text-sm mb-4">Fill out the form below and we'll get back to you as soon as possible.</p>
+            <div>
+              <label for="name" class="block text-sm font-semibold text-burgundy mb-2">Full Name *</label>
+              <input type="text" id="name" name="name" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="Your full name" />
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-semibold text-burgundy mb-2">Phone Number *</label>
+              <input type="tel" id="phone" name="phone" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="+91 7013404312" />
+            </div>
+            <div>
+              <label for="message" class="block text-sm font-semibold text-burgundy mb-2">Message *</label>
+              <textarea id="message" name="message" required rows="5" class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition resize-none" placeholder="How can we help you?"></textarea>
+            </div>
+            <div id="form-error" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg"></div>
+            <button type="submit" id="submit-btn" class="w-full py-4 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
+              Send Message
+            </button>
+          </form>
+        </div>
+
+        <div id="contact-success" class="hidden lg:col-start-2 bg-white rounded-2xl shadow-xl p-8 sm:p-10 border-t-4 border-burgundy text-center">
+          <div class="w-20 h-20 bg-burgundy rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="font-display text-3xl text-burgundy font-semibold mb-4">Message Sent!</h2>
+          <p class="text-gray-600 leading-relaxed mb-6">Thank you for reaching out. Your inquiry has been saved, and you are being redirected to WhatsApp to chat with the owner.</p>
+          <button id="send-another-btn" class="px-8 py-3 border-2 border-burgundy text-burgundy font-semibold rounded-full hover:bg-burgundy/5 transition">
+            Send Another Message
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div class="lg:col-span-2">
+          <p class="font-display text-cream text-xl font-semibold mb-4">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60 leading-relaxed max-w-md text-sm">Opp. to Shivalayam, Ontisstambam, Old City, Nalgonda, Telangana – 508001</p>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Reach Us</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></li>
+            <li><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></li>
+            <li><a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Hours</h4>
+          <p class="text-sm text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>© 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    
+    // Import Authentication tracking dependencies to switch Login/Logout buttons
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const auth = getAuth();
+    const desktopAuthContainer = document.getElementById("auth-nav-container");
+    const mobileAuthContainer = document.getElementById("mobile-auth-nav-container");
+
+    // Tracks authentication session status across Email/Password or Google Sign-In options
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        desktopAuthContainer.innerHTML = `
+          <button id="nav-logout-btn" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Logout</button>
+        `;
+        mobileAuthContainer.innerHTML = `
+          <button id="mobile-nav-logout-btn" class="block text-left w-full text-cream/80 py-2 font-medium">Logout</button>
+        `;
+
+        const handleLogout = () => {
+          signOut(auth).then(() => {
+            window.location.reload();
+          });
+        };
+
+        document.getElementById("nav-logout-btn")?.addEventListener("click", handleLogout);
+        document.getElementById("mobile-nav-logout-btn")?.addEventListener("click", handleLogout);
+      } else {
+        desktopAuthContainer.innerHTML = `
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        `;
+        mobileAuthContainer.innerHTML = `
+          <a href="login.html" class="block text-cream/80 py-2">Login</a>
+        `;
+      }
+    });
+
+    const form = document.getElementById("contact-form");
+    const formWrapper = document.getElementById("contact-form-wrapper");
+    const successPanel = document.getElementById("contact-success");
+    const submitBtn = document.getElementById("submit-btn");
+    const formError = document.getElementById("form-error");
+    const sendAnotherBtn = document.getElementById("send-another-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formError.classList.add("hidden");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+
+      const nameVal = form.name.value.trim();
+      const phoneVal = form.phone.value.trim();
+      const messageVal = form.message.value.trim();
+
+      try {
+        // 1. Save data structure inside Firestore
+        await addDoc(collection(db, "enquiries"), {
+          type: "General Inquiry",
+          status: "Pending",
+          name: nameVal,
+          phone: phoneVal,
+          message: messageVal,
+          createdAt: new Date(),
+        });
+
+        // 2. Format localized structures text message parameters safely
+        const textMessage = `Hello Saanvi Boutique! ✨\n\n` +
+                            `New message received from website:\n` +
+                            `👤 *Name:* ${nameVal}\n` +
+                            `📞 *Phone:* ${phoneVal}\n` +
+                            `💬 *Message:* ${messageVal}`;
+        
+        const encodedText = encodeURIComponent(textMessage);
+        const ownerWhatsAppUrl = `https://wa.me/917013404312?text=${encodedText}`;
+
+        // 3. Update UI Panels layout
+        formWrapper.classList.add("hidden");
+        successPanel.classList.remove("hidden");
+
+        // 4. Automatically trigger redirection popup context tab safely
+        window.open(ownerWhatsAppUrl, '_blank');
+
+      } catch (error) {
+        console.error("Contact form error:", error);
+        formError.textContent = "Something went wrong. Please call +91 7013404312 or message us on WhatsApp directly.";
+        formError.classList.remove("hidden");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Message";
+      }
+    });
+
+    sendAnotherBtn.addEventListener("click", () => {
+      form.reset();
+      successPanel.classList.add("hidden");
+      formWrapper.classList.remove("hidden");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send Message";
+    });
+  </script>
+</body>
+</html>

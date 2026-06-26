@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Saanvi Boutique | Advanced Catalog Manager</title>
+    
+    <!-- Core Engine Scripts Loaded First -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin-config.js"></script>
+    <script src="admin-guard.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#7d2841",
+                        "primary-dark": "#5c1c30",
+                        cream: "#e6e5b9",
+                        "cream-light": "#f5f4e4"
+                    },
+                    fontFamily: {
+                        display: ["Playfair Display", "serif"],
+                        sans: ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script>
+        document.addEventListener("admin:authenticated", () => {
+            const container = document.getElementById("dashboard-container");
+            if (container) container.classList.remove("hidden");
+        });
+    </script>
+</head>
+<body class="bg-cream-light font-sans text-gray-800 antialiased min-h-screen">
+
+    <!-- Wrapper protects UI from unstyled flashes before user verification -->
+    <div id="dashboard-container" class="hidden min-h-screen flex flex-col">
+        <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="../logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                    <div>
+                        <p class="font-display text-cream text-base sm:text-lg font-semibold leading-tight">Admin Hub</p>
+                        <p class="text-white/70 text-[10px] tracking-widest uppercase">Saanvi Boutique</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="dashboard.html" class="text-white/80 hover:text-white font-medium transition">Dashboard</a>
+                    <a href="sections.html" class="text-white/80 hover:text-white font-medium transition">Categories</a>
+                    <a href="receipts.html" class="text-white/80 hover:text-white font-medium transition">Receipts</a>
+                    <a href="manage.html" class="text-cream font-medium border-b-2 border-cream pb-1">Manage Works</a>
+                    <a href="enquiries.html" class="text-white/80 hover:text-white font-medium transition">Enquiries</a>
+                    <a href="settings.html" class="text-white/80 hover:text-white font-medium transition">Settings</a>
+                    <button onclick="logout()" class="px-4 py-2 bg-cream text-primary rounded-full font-semibold hover:bg-white transition text-sm shadow-sm">Sign Out</button>
+                </div>
+
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-cream hover:text-white focus:outline-none flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+
+            <div id="mobile-drawer" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex">
+                <div id="drawer-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                
+                <div class="relative w-72 max-w-[80vw] bg-primary h-full shadow-2xl p-6 flex flex-col justify-between z-10 ml-auto">
+                    <div class="space-y-8">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <div class="flex items-center gap-2">
+                                <img src="../logo.png" class="w-8 h-8 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                                <span class="font-display font-bold text-cream">Navigation</span>
+                            </div>
+                            <button id="close-drawer-btn" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+                        </div>
+                        <nav class="flex flex-col gap-4 text-lg">
+                            <a href="dashboard.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+                            <a href="sections.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">category</span> Categories</a>
+                            <a href="receipts.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">receipt</span> Receipts</a>
+                            <a href="manage.html" class="text-cream font-semibold bg-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">collections</span> Manage Works</a>
+                            <a href="enquiries.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">mail</span> Enquiries</a>
+                            <a href="settings.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">settings</span> Settings</a>
+                        </nav>
+                    </div>
+                    <button onclick="logout()" class="w-full py-3.5 bg-cream text-primary rounded-xl font-bold transition shadow-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sm">logout</span> Sign Out Workspace</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                
+                <div class="w-full lg:w-5/12">
+                    <div class="bg-white rounded-2xl shadow-md border-t-4 border-primary p-5 sm:p-6 lg:sticky lg:top-28 space-y-5">
+                        <div>
+                            <h2 class="font-display text-xl sm:text-2xl text-primary font-bold mb-1">Upload Work Suite</h2>
+                            <p class="text-xs text-gray-400">Combine up to 5 pictures + 1 display video for a single catalog dress listing.</p>
+                        </div>
+                        
+                        <form id="media-form" class="space-y-4 sm:space-y-5">
+                            <div>
+                                <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Target Shop Collection</label>
+                                <select id="media-collection" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                                    <option value="" disabled selected>Loading collections from database…</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Design Title / Code</label>
+                                <input type="text" id="media-title" required class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., Premium Royal Silk Bridal Set">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Design Description / Details</label>
+                                <textarea id="media-desc" rows="2" class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., Silk fabric, heavy hand embroidery, gold zari, matching lining..."></textarea>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-700">Add Design Images (Up to 5)</label>
+                                    <span id="img-counter" class="text-[10px] sm:text-[11px] font-mono font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">0 / 5</span>
+                                </div>
+                                <div class="border-2 border-dashed border-gray-200 hover:border-primary/40 transition rounded-xl p-3 text-center cursor-pointer relative bg-gray-50/50 group">
+                                    <input type="file" id="image-files" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                                    <div class="flex items-center justify-center gap-2 text-gray-500">
+                                        <span class="material-symbols-outlined text-lg sm:text-xl text-primary/70">image</span>
+                                        <p class="text-xs font-medium text-gray-700">Select multiple catalog photos</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Add Showcase Video (Max 1)</label>
+                                <div class="border-2 border-dashed border-gray-200 hover:border-primary/40 transition rounded-xl p-3 text-center cursor-pointer relative bg-gray-50/50 group">
+                                    <input type="file" id="video-file" accept="video/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                                    <div id="video-dropzone-text" class="flex items-center justify-center gap-2 text-gray-500">
+                                        <span class="material-symbols-outlined text-lg sm:text-xl text-amber-600/80">movie</span>
+                                        <p class="text-xs font-medium text-gray-700">Choose short preview clip / reel</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="staging-section" class="hidden border border-gray-100 bg-gray-50/70 p-3 sm:p-4 rounded-xl space-y-3">
+                                <div>
+                                    <p class="text-[11px] font-bold text-primary uppercase tracking-wider">Set Cover Thumbnail Picture</p>
+                                    <p class="text-[10px] text-gray-400">Tap a layout bubble below to flag which item displays on your home feed grid.</p>
+                                </div>
+                                <div id="staging-grid" class="grid grid-cols-3 gap-2 sm:gap-3"></div>
+                            </div>
+
+                            <button type="submit" id="submit-btn" class="w-full py-3.5 bg-primary text-cream font-semibold rounded-lg hover:bg-primary-dark transition shadow-md flex items-center justify-center gap-2 text-sm disabled:opacity-50">
+                                <span class="material-symbols-outlined text-base">cloud_upload</span> Publish Collection Set
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-7/12">
+                    <div class="mb-6 mt-4 lg:mt-0">
+                        <h2 class="font-display text-2xl sm:text-3xl text-primary font-bold">Showroom Catalog Listings</h2>
+                        <p class="text-gray-500 text-xs sm:text-sm">Review published asset packages distributed throughout active boutique sections.</p>
+                    </div>
+
+                    <div id="media-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="col-span-full text-center py-16 text-primary/60">
+                            <div class="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+                            <p class="text-xs">Syncing showroom catalog from Supabase…</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="bg-primary text-cream/60 py-5 text-center text-xs tracking-wide border-t border-primary-dark px-4">
+            &copy; 2026 Saanvi Boutique & Matching Center. Secured Administrative Workspace.
+        </footer>
+    </div>
+
+    <script>
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileDrawer = document.getElementById("mobile-drawer");
+        const closeDrawerBtn = document.getElementById("close-drawer-btn");
+        const drawerBackdrop = document.getElementById("drawer-backdrop");
+
+        function openMenu() {
+            mobileDrawer.classList.remove("translate-x-full");
+            drawerBackdrop.classList.remove("pointer-events-none", "opacity-0");
+            drawerBackdrop.classList.add("opacity-100");
+        }
+
+        function closeMenu() {
+            mobileDrawer.classList.add("translate-x-full");
+            drawerBackdrop.classList.remove("opacity-100");
+            drawerBackdrop.classList.add("opacity-0", "pointer-events-none");
+        }
+
+        mobileMenuBtn.addEventListener("click", openMenu);
+        closeDrawerBtn.addEventListener("click", closeMenu);
+        drawerBackdrop.addEventListener("click", closeMenu);
+
+        function logout() {
+            adminLogout();
+        }
+
+        // Form Staging and File Management Logic
+        const imageFilesInput = document.getElementById("image-files");
+        const videoFileInput = document.getElementById("video-file");
+        const videoDropzoneText = document.getElementById("video-dropzone-text");
+        
+        const stagingSection = document.getElementById("staging-section");
+        const stagingGrid = document.getElementById("staging-grid");
+        const imgCounter = document.getElementById("img-counter");
+
+        let selectedImagesData = [];
+        let chosenVideoFile = null;
+        let selectedThumbnailIndex = 0;
+
+        imageFilesInput.addEventListener("change", () => {
+            const rawFiles = Array.from(imageFilesInput.files);
+            
+            if (rawFiles.length > 5) {
+                alert("Boutique Rule Alert: You are only allowed to select a maximum of 5 images per collection package set.");
+                imageFilesInput.value = "";
+                return;
+            }
+
+            selectedImagesData = rawFiles;
+            imgCounter.textContent = `${selectedImagesData.length} / 5`;
+            renderStagingWorkspace();
+        });
+
+        videoFileInput.addEventListener("change", () => {
+            if (videoFileInput.files && videoFileInput.files[0]) {
+                chosenVideoFile = videoFileInput.files[0];
+                videoDropzoneText.innerHTML = `
+                    <span class="material-symbols-outlined text-lg text-emerald-600">movie</span>
+                    <p class="text-xs font-semibold text-emerald-700 line-clamp-1">${chosenVideoFile.name}</p>
+                `;
+                renderStagingWorkspace();
+            }
+        });
+
+        function renderStagingWorkspace() {
+            stagingGrid.innerHTML = "";
+
+            if (selectedImagesData.length === 0 && !chosenVideoFile) {
+                stagingSection.classList.add("hidden");
+                return;
+            }
+
+            stagingSection.classList.remove("hidden");
+
+            selectedImagesData.forEach((file, index) => {
+                const imgCard = document.createElement("div");
+                imgCard.className = `relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition flex flex-col items-center justify-center p-1 bg-white ${selectedThumbnailIndex === index ? 'border-primary shadow-xs bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`;
+                
+                const objectURL = URL.createObjectURL(file);
+                
+                imgCard.innerHTML = `
+                    <img src="${objectURL}" class="w-full h-full object-cover rounded" />
+                    <div class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-white border border-gray-300 flex items-center justify-center shadow-xs">
+                        <div class="w-1.5 h-1.5 rounded-full ${selectedThumbnailIndex === index ? 'bg-primary' : 'bg-transparent'}"></div>
+                    </div>
+                    <span class="absolute bottom-0.5 left-0.5 bg-black/60 text-[7px] text-white font-mono px-1 rounded">Pic ${index + 1}</span>
+                `;
+
+                imgCard.addEventListener("click", () => {
+                    selectedThumbnailIndex = index;
+                    renderStagingWorkspace();
+                });
+
+                stagingGrid.appendChild(imgCard);
+            });
+
+            if (chosenVideoFile) {
+                const videoCard = document.createElement("div");
+                videoCard.className = "relative aspect-square rounded-lg border-2 border-amber-500/40 bg-slate-900 flex flex-col items-center justify-center text-center p-1 text-amber-400";
+                videoCard.innerHTML = `
+                    <span class="material-symbols-outlined text-lg">movie_filter</span>
+                    <span class="text-[8px] font-bold tracking-wide uppercase mt-0.5 px-1 truncate max-w-full">Video</span>
+                    <button id="clear-video-btn" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center border border-white shadow-xs"><span class="material-symbols-outlined text-[10px]">close</span></button>
+                `;
+                
+                videoCard.querySelector("#clear-video-btn").addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    chosenVideoFile = null;
+                    videoFileInput.value = "";
+                    videoDropzoneText.innerHTML = `
+                        <span class="material-symbols-outlined text-lg sm:text-xl text-amber-600/80">movie</span>
+                        <p class="text-xs font-medium text-gray-700">Choose short preview clip / reel</p>
+                    `;
+                    renderStagingWorkspace();
+                });
+
+                stagingGrid.appendChild(videoCard);
+            }
+        }
+
+        // Supabase database and storage bindings
+        document.addEventListener("DOMContentLoaded", async () => {
+            const dropdown = document.getElementById("media-collection");
+            const grid = document.getElementById("media-grid");
+            const form = document.getElementById("media-form");
+            const submitBtn = document.getElementById("submit-btn");
+
+            if (!window.supabaseClient) {
+                grid.innerHTML = `<p class="col-span-full text-center text-red-600 font-medium">Supabase is not configured.</p>`;
+                return;
+            }
+
+            // 1. Fetch Categories for Dropdown
+            async function loadDropdownCategories() {
+                try {
+                    const { data: categories, error } = await window.supabaseClient
+                        .from("categories")
+                        .select("id, name")
+                        .order("name", { ascending: true });
+
+                    if (error) throw error;
+
+                    if (!categories || categories.length === 0) {
+                        dropdown.innerHTML = `<option value="" disabled selected>No collections found. Create a category first!</option>`;
+                        return;
+                    }
+
+                    dropdown.innerHTML = `<option value="" disabled selected>Select boutique collection</option>` +
+                        categories.map(cat => `<option value="${cat.id}" data-name="${cat.name}">${cat.name}</option>`).join("");
+
+                } catch (err) {
+                    console.error("Dropdown loading failed:", err);
+                    dropdown.innerHTML = `<option value="" disabled selected>Error loading categories</option>`;
+                }
+            }
+
+            // 2. Fetch Works and Render Showroom List
+            async function loadWorks() {
+                try {
+                    const { data: works, error } = await window.supabaseClient
+                        .from("works")
+                        .select("*")
+                        .order("created_at", { ascending: false });
+
+                    if (error) throw error;
+                    window.allWorks = works || [];
+
+                    if (!works || works.length === 0) {
+                        grid.innerHTML = `
+                            <div class="col-span-full text-center py-16 text-primary/60 border border-dashed border-primary/20 rounded-xl bg-white">
+                                <p class="font-display text-xl font-bold">No Catalog Listings Published</p>
+                                <p class="text-xs mt-1">Use the left form to upload design photos and publish them to the cloud.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    grid.innerHTML = works.map(work => buildWorkCard(work)).join("");
+                    setupDeleteListeners();
+
+                } catch (err) {
+                    console.error("Failed to fetch works:", err);
+                    grid.innerHTML = `<p class="col-span-full text-center text-red-600 text-xs">Error loading works from the database.</p>`;
+                }
+            }
+
+            function buildWorkCard(work) {
+                const coverImage = work.image_url || "https://images.unsplash.com/photo-1610030469983-98e550d6198c?w=500&q=80";
+                return `
+                    <div class="bg-white rounded-xl shadow-xs overflow-hidden border border-gray-100 flex flex-col group relative">
+                        <div onclick="openAdminLightbox('${work.id}')" class="aspect-[4/3] w-full bg-gray-100 relative overflow-hidden flex items-center justify-center cursor-zoom-in">
+                            <img src="${coverImage}" alt="${work.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                            <span class="absolute top-3 left-3 px-2.5 py-0.5 bg-primary text-cream text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xs">Staged Cover</span>
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-sm sm:text-base line-clamp-1">${work.name}</h3>
+                                    <p class="text-xs text-primary font-medium mt-0.5">${work.collection_name}</p>
+                                    ${work.description ? `<p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${work.description}</p>` : ""}
+                                </div>
+                                <button data-id="${work.id}" class="delete-work-btn text-gray-400 hover:text-red-600 transition cursor-pointer" title="Delete Design">
+                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function setupDeleteListeners() {
+                const deleteBtns = document.querySelectorAll(".delete-work-btn");
+                deleteBtns.forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        e.preventDefault();
+                        const workId = btn.getAttribute("data-id");
+                        if (!workId) return;
+
+                        if (confirm("Are you sure you want to delete this design listing from the showroom?")) {
+                            btn.style.pointerEvents = "none";
+                            btn.style.opacity = "0.5";
+
+                            try {
+                                const { error } = await window.supabaseClient
+                                    .from("works")
+                                    .delete()
+                                    .eq("id", workId);
+
+                                if (error) throw error;
+                                await loadWorks();
+                            } catch (err) {
+                                console.error("Deletion failed:", err);
+                                alert("Failed to delete design listing. Please try again.");
+                                btn.style.pointerEvents = "auto";
+                                btn.style.opacity = "1";
+                            }
+                        }
+                    });
+                });
+            }
+
+            // 3. Handle Form Submissions & Uploads
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                if (selectedImagesData.length === 0) {
+                    alert("Boutique Configuration Note: Please select at least one image to function as the catalog display reference item.");
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const categoryId = dropdown.value; // uuid
+                const collectionName = selectedOption.getAttribute("data-name");
+                
+                const title = document.getElementById("media-title").value.trim();
+                const desc = document.getElementById("media-desc").value.trim();
+
+                try {
+                    const uploadedImageUrls = [];
+                    
+                    // 1. Upload all selected images to Supabase Storage
+                    for (let i = 0; i < selectedImagesData.length; i++) {
+                        submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">sync</span> Uploading Image ${i + 1} of ${selectedImagesData.length}…`;
+                        
+                        const imgFile = selectedImagesData[i];
+                        const fileExt = imgFile.name.split('.').pop();
+                        const filePath = `works/${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+
+                        const { data: uploadData, error: uploadErr } = await window.supabaseClient.storage
+                            .from("boutique")
+                            .upload(filePath, imgFile, { cacheControl: "3600", upsert: false });
+
+                        if (uploadErr) throw uploadErr;
+
+                        const { data: { publicUrl } } = window.supabaseClient.storage
+                            .from("boutique")
+                            .getPublicUrl(filePath);
+
+                        uploadedImageUrls.push(publicUrl);
+                    }
+
+                    // 2. Upload video to Supabase Storage if a video is chosen
+                    let uploadedVideoUrl = null;
+                    if (chosenVideoFile) {
+                        submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">sync</span> Uploading Showcase Video…`;
+                        
+                        const fileExt = chosenVideoFile.name.split('.').pop();
+                        const filePath = `works/videos/${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+
+                        const { data: uploadData, error: uploadErr } = await window.supabaseClient.storage
+                            .from("boutique")
+                            .upload(filePath, chosenVideoFile, { cacheControl: "3600", upsert: false });
+
+                        if (uploadErr) throw uploadErr;
+
+                        const { data: { publicUrl } } = window.supabaseClient.storage
+                            .from("boutique")
+                            .getPublicUrl(filePath);
+
+                        uploadedVideoUrl = publicUrl;
+                    }
+
+                    // 3. Determine cover image URL based on selected thumbnail
+                    const coverImageUrl = uploadedImageUrls[selectedThumbnailIndex] || uploadedImageUrls[0];
+
+                    submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">sync</span> Saving to Database…`;
+
+                    // 4. Insert design listing row into DB including multiple images and video
+                    const { error: insertErr } = await window.supabaseClient
+                        .from("works")
+                        .insert({
+                            category_id: categoryId,
+                            name: title,
+                            description: desc,
+                            image_url: coverImageUrl,
+                            images: uploadedImageUrls,
+                            video_url: uploadedVideoUrl,
+                            collection_name: collectionName
+                        });
+
+                    if (insertErr) throw insertErr;
+
+                    // Reset form & staging state
+                    form.reset();
+                    selectedImagesData = [];
+                    chosenVideoFile = null;
+                    selectedThumbnailIndex = 0;
+                    imgCounter.textContent = "0 / 5";
+                    videoDropzoneText.innerHTML = `
+                        <span class="material-symbols-outlined text-lg sm:text-xl text-amber-600/80">movie</span>
+                        <p class="text-xs font-medium text-gray-700">Choose short preview clip / reel</p>
+                    `;
+                    renderStagingWorkspace();
+                    
+                    // Reload Grid list
+                    await loadWorks();
+
+                } catch (err) {
+                    console.error("Showroom design upload failed:", err);
+                    alert("Failed to publish design catalog listing. Please check database permissions.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            });
+
+            // Run initial fetch operations
+            await loadDropdownCategories();
+            await loadWorks();
+        });
+
+        // Fullscreen Lightbox Zoom & Pan Engine for Admin
+        let lightboxActiveIndex = 0;
+        let lightboxScale = 1;
+        let lightboxIsDragging = false;
+        let lightboxStartX = 0, lightboxStartY = 0;
+        let lightboxTranslateX = 0, lightboxTranslateY = 0;
+        let galleryImages = [];
+
+        window.openAdminLightbox = function(workId) {
+            const work = (window.allWorks || []).find(w => String(w.id) === String(workId));
+            if (!work) return;
+
+            let images = [];
+            if (work.images && Array.isArray(work.images) && work.images.length > 0) {
+                images = work.images;
+            } else if (work.image_url) {
+                images = [work.image_url];
+            } else {
+                images = ["https://images.unsplash.com/photo-1610030469983-98e550d6198c?w=500&q=80"];
+            }
+
+            galleryImages = images;
+            lightboxActiveIndex = 0;
+            
+            const modal = document.getElementById("lightbox-modal");
+            if (modal) modal.classList.remove("hidden");
+            
+            resetLightboxZoom();
+            updateLightboxImage();
+        };
+
+        const lightboxModal = document.getElementById("lightbox-modal");
+        const lightboxImage = document.getElementById("lightbox-image");
+        const lightboxCounter = document.getElementById("lightbox-counter");
+        const lightboxScreen = document.getElementById("lightbox-screen");
+
+        function closeLightbox() {
+            lightboxModal.classList.add("hidden");
+        }
+
+        function updateLightboxImage() {
+            if (!galleryImages[lightboxActiveIndex]) return;
+            lightboxImage.src = galleryImages[lightboxActiveIndex];
+            lightboxCounter.textContent = `${lightboxActiveIndex + 1} / ${galleryImages.length}`;
+            resetLightboxZoom();
+        }
+
+        function resetLightboxZoom() {
+            lightboxScale = 1;
+            lightboxTranslateX = 0;
+            lightboxTranslateY = 0;
+            applyLightboxTransform();
+        }
+
+        function applyLightboxTransform() {
+            lightboxImage.style.transform = `scale(${lightboxScale}) translate(${lightboxTranslateX}px, ${lightboxTranslateY}px)`;
+            document.getElementById("lightbox-zoom-level").textContent = `${Math.round(lightboxScale * 100)}%`;
+            
+            if (lightboxScale > 1) {
+                lightboxScreen.classList.remove("cursor-grab");
+                lightboxScreen.classList.add("cursor-grabbing");
+            } else {
+                lightboxScreen.classList.remove("cursor-grabbing");
+                lightboxScreen.classList.add("cursor-grab");
+            }
+        }
+
+        document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+
+        document.getElementById("lightbox-prev").addEventListener("click", () => {
+            lightboxActiveIndex = (lightboxActiveIndex - 1 + galleryImages.length) % galleryImages.length;
+            updateLightboxImage();
+        });
+
+        document.getElementById("lightbox-next").addEventListener("click", () => {
+            lightboxActiveIndex = (lightboxActiveIndex + 1) % galleryImages.length;
+            updateLightboxImage();
+        });
+
+        document.getElementById("lightbox-zoom-in").addEventListener("click", () => {
+            if (lightboxScale < 4.5) {
+                lightboxScale += 0.25;
+                applyLightboxTransform();
+            }
+        });
+
+        document.getElementById("lightbox-zoom-out").addEventListener("click", () => {
+            if (lightboxScale > 1.0) {
+                lightboxScale -= 0.25;
+                applyLightboxTransform();
+            }
+        });
+
+        document.getElementById("lightbox-reset").addEventListener("click", resetLightboxZoom);
+
+        // Pan / Drag logic
+        lightboxScreen.addEventListener("mousedown", (e) => {
+            if (lightboxScale > 1.0) {
+                lightboxIsDragging = true;
+                lightboxStartX = e.clientX - lightboxTranslateX * lightboxScale;
+                lightboxStartY = e.clientY - lightboxTranslateY * lightboxScale;
+                lightboxScreen.style.cursor = "grabbing";
+            }
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (lightboxIsDragging && lightboxScale > 1.0) {
+                lightboxTranslateX = (e.clientX - lightboxStartX) / lightboxScale;
+                lightboxTranslateY = (e.clientY - lightboxStartY) / lightboxScale;
+                applyLightboxTransform();
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            lightboxIsDragging = false;
+            if (lightboxScale > 1.0) {
+                lightboxScreen.style.cursor = "grab";
+            }
+        });
+
+        // Touch support for mobile panning and two-finger pinch-to-zoom
+        let initialPinchDistance = 0;
+        let initialPinchScale = 1;
+
+        lightboxScreen.addEventListener("touchstart", (e) => {
+            if (e.touches.length === 1 && lightboxScale > 1.0) {
+                lightboxIsDragging = true;
+                lightboxStartX = e.touches[0].clientX - lightboxTranslateX * lightboxScale;
+                lightboxStartY = e.touches[0].clientY - lightboxTranslateY * lightboxScale;
+            } else if (e.touches.length === 2) {
+                lightboxIsDragging = false;
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialPinchScale = lightboxScale;
+            }
+        });
+
+        lightboxScreen.addEventListener("touchmove", (e) => {
+            if (e.touches.length === 1 && lightboxIsDragging && lightboxScale > 1.0) {
+                e.preventDefault();
+                lightboxTranslateX = (e.touches[0].clientX - lightboxStartX) / lightboxScale;
+                lightboxTranslateY = (e.touches[0].clientY - lightboxStartY) / lightboxScale;
+                applyLightboxTransform();
+            } else if (e.touches.length === 2 && initialPinchDistance > 0) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const scaleFactor = currentDistance / initialPinchDistance;
+                lightboxScale = Math.min(Math.max(initialPinchScale * scaleFactor, 1.0), 4.5);
+                applyLightboxTransform();
+            }
+        });
+
+        lightboxScreen.addEventListener("touchend", (e) => {
+            lightboxIsDragging = false;
+            if (e.touches.length < 2) {
+                initialPinchDistance = 0;
+            }
+            if (lightboxScale <= 1.0) {
+                resetLightboxZoom();
+            } else if (e.touches.length === 1) {
+                lightboxIsDragging = true;
+                lightboxStartX = e.touches[0].clientX - lightboxTranslateX * lightboxScale;
+                lightboxStartY = e.touches[0].clientY - lightboxTranslateY * lightboxScale;
+            }
+        });
+    </script>
+
+    <!-- Fullscreen Lightbox Modal -->
+    <div id="lightbox-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md hidden flex flex-col justify-between p-4 select-none">
+        <!-- Top Action Row -->
+        <div class="flex items-center justify-between text-white/70 p-2 sm:p-4">
+            <span id="lightbox-counter" class="font-mono text-xs sm:text-sm font-semibold tracking-wider">1 / 1</span>
+            <button id="lightbox-close" class="text-white/70 hover:text-white transition-colors p-2 cursor-pointer focus:outline-none flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl sm:text-3xl">close</span>
+            </button>
+        </div>
+        
+        <!-- Main Box -->
+        <div class="relative w-full max-w-5xl mx-auto flex items-center justify-center flex-1">
+            <!-- Prev Button -->
+            <button id="lightbox-prev" class="absolute left-2 sm:left-4 z-10 text-white/70 hover:text-white transition-all bg-white/5 hover:bg-white/15 p-2 sm:p-3 rounded-full cursor-pointer focus:outline-none flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl sm:text-2xl">chevron_left</span>
+            </button>
+            
+            <!-- Screen Area -->
+            <div id="lightbox-screen" class="overflow-hidden w-full h-[60vh] sm:h-[70vh] flex items-center justify-center relative cursor-grab">
+                <img id="lightbox-image" src="" class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-100 ease-out origin-center" />
+            </div>
+            
+            <!-- Next Button -->
+            <button id="lightbox-next" class="absolute right-2 sm:right-4 z-10 text-white/70 hover:text-white transition-all bg-white/5 hover:bg-white/15 p-2 sm:p-3 rounded-full cursor-pointer focus:outline-none flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl sm:text-2xl">chevron_right</span>
+            </button>
+        </div>
+        
+        <!-- Bottom Controls -->
+        <div class="flex flex-col items-center gap-4 text-white/75 p-4">
+            <div class="flex items-center gap-6">
+                <button id="lightbox-zoom-out" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"><span class="material-symbols-outlined text-sm sm:text-base">zoom_out</span></button>
+                <span id="lightbox-zoom-level" class="font-mono text-xs sm:text-sm font-bold tracking-wide select-none min-w-[50px] text-center">100%</span>
+                <button id="lightbox-zoom-in" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"><span class="material-symbols-outlined text-sm sm:text-base">zoom_in</span></button>
+                <button id="lightbox-reset" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center" title="Reset view"><span class="material-symbols-outlined text-sm sm:text-base">restart_alt</span></button>
+            </div>
+            <p class="text-[9px] sm:text-xs text-white/40 select-none text-center">Drag or swipe to pan the image when zoomed in.</p>
+        </div>
+    </div>
+</body>
+</html>

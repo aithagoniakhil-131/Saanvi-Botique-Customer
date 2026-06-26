@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saanvi Boutique | Receipt Generator</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin-config.js"></script>
+  <script src="admin-guard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#7d2841",
+            "primary-dark": "#5c1c30",
+            cream: "#e6e5b9",
+            "cream-light": "#f5f4e4"
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .receipt-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    /* Print Styles: Hides form and headers, only prints the receipt container */
+    @media print {
+      .no-print, header, footer, button {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+      }
+      #print-area {
+        box-shadow: none !important;
+        border: none !important;
+        background: #fffbf9 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-cream-light font-sans text-gray-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header Navigation -->
+  <header class="bg-primary text-white shadow-md sticky top-0 z-50 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="../logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+        <div>
+          <p class="font-display text-cream text-base sm:text-lg font-semibold leading-tight">Admin Hub</p>
+          <p class="text-white/70 text-[10px] tracking-widest uppercase">Saanvi Boutique</p>
+        </div>
+      </div>
+      
+      <div class="hidden md:flex items-center gap-6">
+        <a href="dashboard.html" class="text-white/80 hover:text-white font-medium transition">Dashboard</a>
+        <a href="sections.html" class="text-white/80 hover:text-white font-medium transition">Categories</a>
+        <a href="receipts.html" class="text-cream font-medium border-b-2 border-cream pb-1">Receipts</a>
+        <a href="manage.html" class="text-white/80 hover:text-white font-medium transition">Manage Works</a>
+        <a href="enquiries.html" class="text-white/80 hover:text-white font-medium transition">Enquiries</a>
+        <a href="settings.html" class="text-white/80 hover:text-white font-medium transition">Settings</a>
+        <button onclick="logout()" class="px-4 py-2 bg-cream text-primary rounded-full font-semibold hover:bg-white transition text-sm shadow-sm">Sign Out</button>
+      </div>
+
+      <button id="mobile-menu-btn" class="md:hidden p-2 text-cream hover:text-white focus:outline-none flex items-center justify-center">
+        <span class="material-symbols-outlined text-3xl">menu</span>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex">
+      <div id="drawer-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+      
+      <div class="relative w-72 max-w-[80vw] bg-primary h-full shadow-2xl p-6 flex flex-col justify-between z-10 ml-auto">
+        <div class="space-y-8">
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2">
+              <img src="../logo.png" class="w-8 h-8 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+              <span class="font-display font-bold text-cream">Navigation</span>
+            </div>
+            <button id="close-drawer-btn" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+          </div>
+          <nav class="flex flex-col gap-4 text-lg">
+            <a href="dashboard.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+            <a href="sections.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">category</span> Categories</a>
+            <a href="receipts.html" class="text-cream font-semibold bg-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">receipt</span> Receipts</a>
+            <a href="manage.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">collections</span> Manage Works</a>
+            <a href="enquiries.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">mail</span> Enquiries</a>
+            <a href="settings.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">settings</span> Settings</a>
+          </nav>
+        </div>
+        <button onclick="logout()" class="w-full py-3.5 bg-cream text-primary rounded-xl font-bold transition shadow-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sm">logout</span> Sign Out Workspace</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Input Control Form (Left Column) -->
+      <section class="no-print lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-5">
+        <div>
+          <h2 class="font-display text-xl text-primary font-bold">Receipt Generator</h2>
+          <p class="text-xs text-gray-400">Fill in details to dynamically update the receipt preview.</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Customer Name</label>
+            <input type="text" id="customer-name" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., Anjali Sharma">
+          </div>
+
+          <!-- Customer WhatsApp Number -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Customer WhatsApp Number</label>
+            <input type="tel" id="customer-whatsapp" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., 9876543210">
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Invoice Date</label>
+            <input type="date" id="invoice-date" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+          </div>
+
+          <!-- Invoice Number -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Invoice Number</label>
+            <input type="text" id="invoice-no" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="SB250524-001">
+          </div>
+
+          <!-- Phone Number -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Footer Phone Number</label>
+            <input type="tel" id="footer-phone" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="+91 7013404312">
+          </div>
+
+          <!-- Instagram Handle -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Footer Instagram</label>
+            <input type="text" id="footer-insta" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="@saanvi.botique">
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-2">
+
+        <!-- Add Items Form -->
+        <form id="item-form" class="space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Add Line Items</h3>
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Item Description</label>
+            <input id="item-name" type="text" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., blouse stitching">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Quantity</label>
+              <input id="item-qty" type="number" min="1" value="1" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Rate (₹)</label>
+              <input id="item-price" type="number" min="0" step="0.01" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="0.00">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 shadow-sm transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Item
+          </button>
+        </form>
+
+        <!-- Added Items List (Management) -->
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Staged Items</h4>
+          <div id="items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <p class="text-xs text-gray-400 italic text-center py-2">No items added to stage.</p>
+          </div>
+        </div>
+
+        <!-- Print & Share Actions -->
+        <div class="grid grid-cols-1 gap-3 pt-2">
+          <button onclick="window.print()" class="w-full py-3 bg-primary hover:bg-primary-dark text-cream font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition">
+            <i data-lucide="printer" class="w-4 h-4"></i> Print Shop Receipt
+          </button>
+
+          <!-- WhatsApp Share Button -->
+          <button id="whatsapp-share-btn" onclick="shareOnWhatsApp()" class="w-full py-3 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition">
+            <!-- Custom WhatsApp Vector SVG -->
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.793 1.451 5.48.002 9.935-4.447 9.938-9.93.001-2.654-1.03-5.15-2.904-7.027A9.878 9.878 0 0 0 11.412 1.34c-5.485 0-9.94 4.45-9.94 9.934 0 2.015.524 3.986 1.522 5.711l-.999 3.646 3.73-.977zm11.308-6.115c-.302-.15-1.785-.882-2.057-.981-.273-.099-.471-.148-.669.15-.198.298-.767.98-.94 1.179-.173.198-.347.223-.649.073-.302-.15-1.272-.469-2.424-1.496-.897-.8-1.502-1.788-1.678-2.088-.176-.3-.019-.462.13-.611.135-.134.302-.35.453-.525.151-.175.202-.3.302-.5.101-.2.05-.376-.025-.525-.075-.15-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.785-.73 2.033-1.433.248-.704.248-1.307.173-1.433-.075-.126-.272-.2-.574-.35z"/>
+            </svg>
+            Share on WhatsApp
+          </button>
+        </div>
+      </section>
+
+      <!-- Beautiful Premium Receipt Preview (Right Column) -->
+      <section class="lg:col-span-8 flex justify-center">
+        <!-- Print Area -->
+        <div id="print-area" class="w-full max-w-[700px] bg-[#fffbf9] shadow-xl rounded-sm p-[4px] border border-[#7d2841] transition-all relative overflow-hidden">
+          
+          <!-- Inner Double Border -->
+          <div class="border border-[#7d2841] p-4 sm:p-6 md:p-10 relative min-h-[700px] sm:min-h-[900px] flex flex-col justify-between">
+            
+            <!-- Peach Corner Leaves Decoration (SVG) -->
+            <!-- Top Left -->
+            <svg class="absolute top-2 left-2 w-20 h-20 text-[#7d2841]/8 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M0,0 Q35,15 45,45 Q15,35 0,0 Z" />
+              <path d="M15,0 Q45,8 55,35 Q30,30 15,0 Z" />
+              <path d="M0,15 Q8,45 35,55 Q30,30 0,15 Z" />
+            </svg>
+            <!-- Top Right -->
+            <svg class="absolute top-2 right-2 w-20 h-20 text-[#7d2841]/8 pointer-events-none transform scale-x-[-1]" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M0,0 Q35,15 45,45 Q15,35 0,0 Z" />
+              <path d="M15,0 Q45,8 55,35 Q30,30 15,0 Z" />
+              <path d="M0,15 Q8,45 35,55 Q30,30 0,15 Z" />
+            </svg>
+            
+            <!-- Content Wrapper -->
+            <div>
+              <!-- Logo / Header -->
+              <div class="text-center relative mt-2 mb-4">
+                <!-- Dress Illustration (SVG) -->
+                <svg class="w-20 h-20 mx-auto mb-1" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Hanger hook -->
+                  <path d="M50 18C52.5 18 54 16 52.5 13C51 10 49 10 50 13" stroke="#7d2841" stroke-width="2" stroke-linecap="round"/>
+                  <!-- Straps / Top -->
+                  <path d="M43 25C44.5 21 46.5 18 50 18C53.5 18 55.5 21 57 25" stroke="#7d2841" stroke-width="2"/>
+                  <!-- Bodice -->
+                  <path d="M43 25C42.5 32 46.5 37 47 43H53C53.5 37 57.5 32 57 25H43Z" fill="#7d2841"/>
+                  <!-- Skirt -->
+                  <path d="M47 43L28 80C42.5 86 57.5 86 72 80L53 43H47Z" fill="#7d2841"/>
+                  <!-- Swirl decorations -->
+                  <path d="M35 38C28 35 25 43 32 46C39 49 42 42 35 38Z" fill="none" stroke="#7d2841" stroke-width="1" stroke-linecap="round"/>
+                  <path d="M65 38C72 35 75 43 68 46C61 49 58 42 65 38Z" fill="none" stroke="#7d2841" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+
+                <h1 class="font-display tracking-[0.25em] text-[#7d2841] text-4xl font-bold leading-none">SAANVI</h1>
+                <p class="font-display tracking-[0.35em] text-[#7d2841] text-lg font-semibold mt-1">— BOTIQUE —</p>
+                <p class="text-[9px] tracking-[0.25em] text-gray-500 font-bold uppercase mt-1">TIMELESS FASHION, UNIQUELY YOU</p>
+
+                <!-- Divider Spacer -->
+                <div class="flex items-center justify-center gap-4 my-5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#7d2841]"></span>
+                  <div class="h-[1px] w-20 bg-[#7d2841]"></div>
+                  <span class="text-[#7d2841] text-sm font-bold tracking-[0.2em] font-display">SHOP RECEIPT</span>
+                  <div class="h-[1px] w-20 bg-[#7d2841]"></div>
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#7d2841]"></span>
+                </div>
+              </div>
+
+              <!-- Metadata Block (Using inline vector SVG icons instead of web fonts to ensure perfect html2canvas exports) -->
+              <div class="grid grid-cols-3 border-t border-b border-[#7d2841]/30 py-4 my-6 text-center text-[8px] xs:text-[9px] sm:text-xs">
+                <!-- Col 1: Date -->
+                <div class="flex flex-col items-center justify-center gap-1.5 border-r border-[#7d2841]/20">
+                  <div class="flex items-center gap-1 text-[#7d2841] font-bold">
+                    <!-- Calendar Vector -->
+                    <svg class="w-3 h-3 xs:w-3.5 xs:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span class="tracking-wider">DATE</span>
+                  </div>
+                  <span id="receipt-date-val" class="font-semibold text-gray-700">-</span>
+                </div>
+                <!-- Col 2: Invoice Number -->
+                <div class="flex flex-col items-center justify-center gap-1.5 border-r border-[#7d2841]/20">
+                  <div class="flex items-center gap-1 text-[#7d2841] font-bold">
+                    <!-- Description Vector -->
+                    <svg class="w-3 h-3 xs:w-3.5 xs:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                    <span class="tracking-wider">INVOICE NO.</span>
+                  </div>
+                  <span id="receipt-invoice-val" class="font-semibold text-gray-700">-</span>
+                </div>
+                <!-- Col 3: Thank You -->
+                <div class="flex flex-col items-center justify-center gap-1.5">
+                  <div class="flex items-center gap-1 text-[#7d2841] font-bold">
+                    <!-- Smile Vector -->
+                    <svg class="w-3 h-3 xs:w-3.5 xs:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                      <line x1="9" y1="9" x2="9.01" y2="9" />
+                      <line x1="15" y1="9" x2="15.01" y2="9" />
+                    </svg>
+                    <span class="tracking-wider">THANK YOU</span>
+                  </div>
+                  <span class="font-semibold text-gray-700 leading-tight">For Shopping With Us</span>
+                </div>
+              </div>
+
+              <!-- Customer Name Bar -->
+              <div class="flex items-center gap-2 text-xs text-gray-700 font-medium px-2 mb-6">
+                <span class="font-bold text-[#7d2841] tracking-wider text-[10px] uppercase">CUSTOMER:</span>
+                <span id="receipt-customer-val" class="font-semibold text-gray-800 border-b border-dashed border-gray-300 pb-0.5 min-w-[200px] inline-block italic">-</span>
+              </div>
+
+              <!-- Line Items Table -->
+              <table class="w-full border-collapse border border-[#7d2841]/20 text-xs my-6">
+                <thead>
+                  <tr class="bg-[#7d2841] text-white">
+                    <th class="border border-[#7d2841]/20 py-2.5 px-1 font-bold text-[9px] tracking-wider w-[8%] text-center">SR. NO.</th>
+                    <th class="border border-[#7d2841]/20 py-2.5 px-3 font-bold text-[9px] tracking-wider w-[50%] text-left">DESCRIPTION</th>
+                    <th class="border border-[#7d2841]/20 py-2.5 px-1 font-bold text-[9px] tracking-wider w-[8%] text-center">QTY</th>
+                    <th class="border border-[#7d2841]/20 py-2.5 px-2 font-bold text-[9px] tracking-wider w-[17%] text-center">RATE (₹)</th>
+                    <th class="border border-[#7d2841]/20 py-2.5 px-2 font-bold text-[9px] tracking-wider w-[17%] text-center">AMOUNT (₹)</th>
+                  </tr>
+                </thead>
+                <tbody id="receipt-table-body">
+                  <!-- JS will dynamically populate rows here -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer Details & Totals -->
+            <div>
+              <!-- Details Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start border-b border-[#7d2841]/20 pb-6 mb-6">
+                
+                <!-- Left: Thank You Note Box -->
+                <div class="border border-[#7d2841]/30 rounded-lg p-4 text-center bg-[#fffcf9] flex flex-col items-center justify-center gap-1">
+                  <!-- Heart Vector -->
+                  <svg class="w-4 h-4 text-[#7d2841] fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                  <p class="font-display text-[#7d2841] text-[10px] font-bold tracking-[0.15em] leading-relaxed">THANK YOU FOR<br>CHOOSING SAANVI BOTIQUE</p>
+                  <span class="text-[#7d2841] text-[10px] tracking-widest mt-1">~ ❁ ~</span>
+                </div>
+
+                <!-- Right: Total Amount and Number in Words -->
+                <div class="space-y-3">
+                  <div class="bg-[#7d2841] text-white flex justify-between items-center py-2.5 px-4 rounded-lg font-bold text-sm shadow-2xs">
+                    <span class="tracking-wide">TOTAL AMOUNT</span>
+                    <span id="receipt-total-val" class="font-mono text-base">₹0.00</span>
+                  </div>
+                  <div class="text-[10px] bg-gray-50/50 rounded-lg p-2 border border-gray-100">
+                    <span class="text-gray-400 font-bold text-[8px] uppercase tracking-wider block mb-0.5">IN WORDS:</span>
+                    <span id="receipt-words-val" class="font-semibold text-[#7d2841] leading-tight">Zero Only</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Brand Footer Banner -->
+              <div class="bg-[#7d2841] text-cream-light rounded-lg overflow-hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center py-4 px-2 border-b border-white/10 text-[9px] md:text-[10px] font-medium">
+                  <div class="flex items-center justify-center gap-1.5 py-1">
+                    <!-- Storefront Vector -->
+                    <svg class="w-3.5 h-3.5 text-cream-light fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>Thank you for trusting SAANVI BOTIQUE</span>
+                  </div>
+                  <div class="flex items-center justify-center gap-1.5 border-t border-b sm:border-t-0 sm:border-b-0 sm:border-l sm:border-r border-white/10 py-2 sm:py-0 px-1">
+                    <!-- Phone Vector -->
+                    <svg class="w-3.5 h-3.5 text-cream-light fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span id="receipt-phone-val">+91 7013404312</span>
+                  </div>
+                  <div class="flex items-center justify-center gap-1.5 py-1">
+                    <!-- Instagram Vector -->
+                    <svg class="w-3.5 h-3.5 text-cream-light fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                    </svg>
+                    <span id="receipt-insta-val">@saanvi.botique</span>
+                  </div>
+                </div>
+                <div class="text-center py-2 text-[9px] tracking-[0.2em] font-bold text-cream">
+                  WE STITCH YOUR DREAMS ♡
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-primary text-cream/60 py-5 text-center text-xs tracking-wide border-t border-primary-dark px-4 mt-auto no-print">
+    &copy; 2026 Saanvi Boutique & Matching Center. Secured Administrative Workspace.
+  </footer>
+
+  <script>
+    // Navigation Drawer Logic
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const mobileDrawer = document.getElementById("mobile-drawer");
+    const closeDrawerBtn = document.getElementById("close-drawer-btn");
+    const drawerBackdrop = document.getElementById("drawer-backdrop");
+
+    function openMenu() {
+      mobileDrawer.classList.remove("translate-x-full");
+      drawerBackdrop.classList.remove("pointer-events-none", "opacity-0");
+      drawerBackdrop.classList.add("opacity-100");
+    }
+
+    function closeMenu() {
+      mobileDrawer.classList.add("translate-x-full");
+      drawerBackdrop.classList.remove("opacity-100");
+      drawerBackdrop.classList.add("opacity-0", "pointer-events-none");
+    }
+
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener("click", openMenu);
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener("click", closeMenu);
+    if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeMenu);
+
+    function logout() {
+      adminLogout();
+    }
+
+    // Auto Invoice Generation & Date Defaults
+    function generateInvoiceNumber() {
+      const d = new Date();
+      const yy = String(d.getFullYear()).slice(-2);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      
+      // Dynamic random or incremental-like suffix for local preview
+      const suffix = String(Math.floor(Math.random() * 900) + 100);
+      return `SB${yy}${mm}${dd}-${suffix}`;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('invoice-date').value = today;
+    document.getElementById('invoice-no').value = generateInvoiceNumber();
+
+    // Indian Numbering System converter for total in words
+    function numberToWords(num) {
+      const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+      if ((num = num.toString()).length > 9) return 'Overflow';
+      let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+      if (!n) return ''; 
+      let str = '';
+      str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + ' Crore ' : '';
+      str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + ' Lakh ' : '';
+      str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + ' Thousand ' : '';
+      str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + ' Hundred ' : '';
+      str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+      return str ? str.trim() + ' Only' : 'Zero Only';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const [yyyy, mm, dd] = dateStr.split('-');
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    // Input elements and corresponding preview fields
+    const customerInput = document.getElementById('customer-name');
+    const customerVal = document.getElementById('receipt-customer-val');
+    
+    const dateInput = document.getElementById('invoice-date');
+    const dateVal = document.getElementById('receipt-date-val');
+    
+    const invoiceInput = document.getElementById('invoice-no');
+    const invoiceVal = document.getElementById('receipt-invoice-val');
+    
+    const phoneInput = document.getElementById('footer-phone');
+    const phoneVal = document.getElementById('receipt-phone-val');
+    
+    const instaInput = document.getElementById('footer-insta');
+    const instaVal = document.getElementById('receipt-insta-val');
+
+    // Realtime preview bindings
+    function updateMetadataPreview() {
+      customerVal.textContent = customerInput.value.trim() || '-';
+      dateVal.textContent = formatDate(dateInput.value);
+      invoiceVal.textContent = invoiceInput.value.trim() || '-';
+      phoneVal.textContent = phoneInput.value.trim() || '+91 7013404312';
+      instaVal.textContent = instaInput.value.trim() || '@saanvi.botique';
+    }
+
+    customerInput.addEventListener('input', updateMetadataPreview);
+    dateInput.addEventListener('change', updateMetadataPreview);
+    invoiceInput.addEventListener('input', updateMetadataPreview);
+    phoneInput.addEventListener('input', updateMetadataPreview);
+    instaInput.addEventListener('input', updateMetadataPreview);
+
+    // Initialize metadata preview values
+    updateMetadataPreview();
+
+    // Item List Management
+    const items = [];
+    const itemForm = document.getElementById('item-form');
+    const listEl = document.getElementById('items-list');
+    const tableBody = document.getElementById('receipt-table-body');
+    const totalVal = document.getElementById('receipt-total-val');
+    const wordsVal = document.getElementById('receipt-words-val');
+    const totalsBlock = document.getElementById('receipt-totals');
+
+    itemForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const desc = document.getElementById('item-name').value.trim();
+      const qty = parseInt(document.getElementById('item-qty').value);
+      const price = parseFloat(document.getElementById('item-price').value);
+      
+      if (!desc || !qty || !price) return;
+      
+      items.push({ id: Date.now(), desc, qty, price });
+      
+      // Reset only line item input values
+      document.getElementById('item-name').value = '';
+      document.getElementById('item-price').value = '';
+      document.getElementById('item-qty').value = 1;
+      
+      render();
+    });
+
+    function removeItem(id) {
+      const idx = items.findIndex(i => i.id === id);
+      if (idx > -1) items.splice(idx, 1);
+      render();
+    }
+
+    function formatCurrency(amount) {
+      return amount.toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function render() {
+      // 1. Render Left Staged List
+      if (items.length === 0) {
+        listEl.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-2">No items added to stage.</p>';
+      } else {
+        listEl.innerHTML = items.map(i => `
+          <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-xs shadow-2xs">
+            <span class="font-medium text-gray-700">${i.desc} × ${i.qty} — ₹${formatCurrency(i.qty * i.price)}</span>
+            <button onclick="removeItem(${i.id})" class="text-red-400 hover:text-red-600 transition p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        `).join('');
+      }
+
+      // 2. Render Receipt Preview Table
+      if (items.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="border border-[#7d2841]/20 py-8 text-center text-gray-400 italic font-medium">No items added yet.</td>
+          </tr>
+        `;
+        totalVal.textContent = '₹0.00';
+        wordsVal.textContent = 'Zero Only';
+      } else {
+        tableBody.innerHTML = items.map((item, idx) => `
+          <tr class="text-gray-800">
+            <td class="border border-[#7d2841]/20 py-2.5 px-1 text-center font-mono">${idx + 1}</td>
+            <td class="border border-[#7d2841]/20 py-2.5 px-3 font-medium text-left leading-tight">${item.desc}</td>
+            <td class="border border-[#7d2841]/20 py-2.5 px-1 text-center font-mono">${item.qty}</td>
+            <td class="border border-[#7d2841]/20 py-2.5 px-2 text-center font-mono">${formatCurrency(item.price)}</td>
+            <td class="border border-[#7d2841]/20 py-2.5 px-2 text-center font-mono font-semibold">${formatCurrency(item.qty * item.price)}</td>
+          </tr>
+        `).join('');
+
+        // Calculate and format totals
+        const total = items.reduce((s, i) => s + (i.qty * i.price), 0);
+        totalVal.textContent = '₹ ' + formatCurrency(total);
+        wordsVal.textContent = numberToWords(Math.round(total));
+      }
+      lucide.createIcons();
+    }
+
+    // WhatsApp Share Implementation
+    async function shareOnWhatsApp() {
+      const shareBtn = document.getElementById('whatsapp-share-btn');
+      const originalText = shareBtn.innerHTML;
+      shareBtn.disabled = true;
+      shareBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Sharing...';
+      lucide.createIcons();
+
+      try {
+        const receiptElement = document.getElementById('print-area');
+        
+        // Generate high resolution canvas representation
+        const canvas = await html2canvas(receiptElement, {
+          scale: 2,
+          backgroundColor: '#fffbf9',
+          useCORS: true
+        });
+
+        // 1. Try Capacitor Native Sharing (for Capacitor Android/iOS Wrapper App)
+        if (window.Capacitor && window.Capacitor.Plugins) {
+          const { Share: CapShare, Filesystem: CapFilesystem } = window.Capacitor.Plugins;
+          if (CapShare && CapFilesystem) {
+            try {
+              const customerName = customerInput.value.trim();
+              const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
+              const dataUrl = canvas.toDataURL('image/png');
+              const base64Data = dataUrl.split(',')[1];
+              
+              // Write image to Cache directory
+              await CapFilesystem.writeFile({
+                path: fileName,
+                data: base64Data,
+                directory: 'CACHE'
+              });
+              
+              // Get the file URI
+              const uriRes = await CapFilesystem.getUri({
+                path: fileName,
+                directory: 'CACHE'
+              });
+              
+              const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
+              
+              // Launch native Share Sheet
+              await CapShare.share({
+                title: 'Saanvi Boutique Receipt',
+                text: shareText,
+                files: [uriRes.uri]
+              });
+              
+              resetButton();
+              return;
+            } catch (capErr) {
+              console.error('Capacitor native share failed, falling back to web flow:', capErr);
+            }
+          }
+        }
+        
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert('Failed to convert receipt to an image.');
+            resetButton();
+            return;
+          }
+          
+          const customerName = customerInput.value.trim();
+          const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
+          const file = new File([blob], fileName, { type: 'image/png' });
+          
+          const whatsappPhoneInput = document.getElementById('customer-whatsapp');
+          let customerPhone = whatsappPhoneInput ? whatsappPhoneInput.value.trim() : '';
+          customerPhone = customerPhone.replace(/\D/g, '');
+          if (customerPhone.length === 10) {
+            customerPhone = '91' + customerPhone;
+          }
+
+          const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
+
+          // 1. Try Mobile/Native Web Share API first (highly recommended for mobile phones)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Saanvi Boutique Receipt',
+                text: shareText
+              });
+              resetButton();
+              return;
+            } catch (shareErr) {
+              console.log('Native share failed or cancelled, trying clipboard...', shareErr);
+            }
+          }
+
+          // 2. Try copying image to clipboard
+          let copied = false;
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({
+                'image/png': blob
+              })
+            ]);
+            copied = true;
+          } catch (clipErr) {
+            console.warn('Clipboard image copy failed, using download fallback:', clipErr);
+          }
+
+          const whatsappMsgText = copied
+            ? `${shareText} (Please paste the copied receipt image directly into this chat)`
+            : `${shareText} (Please attach the downloaded receipt image: ${fileName})`;
+          
+          const whatsappMsg = encodeURIComponent(whatsappMsgText);
+          const targetUrl = customerPhone 
+            ? `https://api.whatsapp.com/send?phone=${customerPhone}&text=${whatsappMsg}`
+            : `https://api.whatsapp.com/send?text=${whatsappMsg}`;
+
+          if (copied) {
+            window.open(targetUrl, '_blank');
+            alert('Receipt image copied to your clipboard! Opening WhatsApp... You can now simply PASTE (Ctrl+V or tap Paste) the receipt image directly into the chat.');
+            resetButton();
+            return;
+          }
+
+          // 3. Fallback: Download file locally and open WhatsApp
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          window.open(targetUrl, '_blank');
+          alert('Clipboard copy is not supported in this browser. The receipt has been downloaded to your device! Opening WhatsApp... Please attach the downloaded image.');
+          resetButton();
+        }, 'image/png');
+        
+      } catch (err) {
+        console.error('Error sharing receipt:', err);
+        alert('An error occurred while generating the receipt image.');
+        resetButton();
+      }
+
+      function resetButton() {
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = originalText;
+        lucide.createIcons();
+      }
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>

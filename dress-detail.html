@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Details | Saanvi Boutique & Matching Center</title>
+  
+  <!-- Styling and Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            burgundy: "#7d2841",
+            cream: "#e6e5b9",
+            "burgundy-dark": "#5c1c30",
+            "cream-light": "#f5f4e4",
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #e6e5b9; transition: width 0.3s ease; }
+    .nav-link:hover::after { width: 100%; }
+    
+    /* Zoom styles */
+    .zoom-container {
+      overflow: hidden;
+      position: relative;
+    }
+    .zoom-image {
+      transition: transform 0.15s ease-out;
+      transform-origin: center center;
+    }
+    .thumbnail-active {
+      border-color: #7d2841;
+      box-shadow: 0 0 0 2px rgba(125, 40, 65, 0.15);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(125, 40, 65, 0.05);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(125, 40, 65, 0.2);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(125, 40, 65, 0.4);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased min-h-screen flex flex-col">
+
+  <!-- Header Section -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <div id="auth-nav-container">
+             <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+          </div>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 pt-28 pb-16 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Loading State -->
+    <div id="product-loading" class="flex flex-col items-center justify-center py-32 text-burgundy">
+      <div class="w-12 h-12 border-4 border-burgundy/30 border-t-burgundy rounded-full animate-spin mb-4"></div>
+      <p class="font-medium tracking-wide">Syncing dress catalog from Supabase…</p>
+    </div>
+
+    <!-- Error / Not Found State -->
+    <div id="product-error" class="hidden text-center py-20 max-w-md mx-auto">
+      <div class="w-20 h-20 rounded-full bg-burgundy/5 flex items-center justify-center mx-auto mb-6 border border-burgundy/10 text-burgundy/50">
+        <span class="material-symbols-outlined text-4xl">inventory_2</span>
+      </div>
+      <h2 class="font-display text-3xl text-burgundy font-semibold mb-3">Dress Not Found</h2>
+      <p class="text-gray-500 mb-8 leading-relaxed">The dress design you are looking for may have been archived or updated. Please browse our collections to find similar creations.</p>
+      <a href="our-works.html" class="px-8 py-3.5 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg inline-block">Browse All Works</a>
+    </div>
+
+    <!-- Product Layout Grid -->
+    <div id="product-container" class="hidden">
+      <!-- Breadcrumbs -->
+      <div class="text-xs sm:text-sm text-gray-500 mb-8 flex items-center gap-2">
+        <a href="index.html" class="hover:text-burgundy transition">Home</a>
+        <span class="text-gray-300">/</span>
+        <a href="our-works.html" class="hover:text-burgundy transition">Showroom</a>
+        <span class="text-gray-300">/</span>
+        <span id="breadcrumb-collection" class="text-gray-400">Collection</span>
+        <span class="text-gray-300">/</span>
+        <span id="breadcrumb-title" class="text-burgundy font-semibold truncate">Dress Details</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        
+        <!-- Interactive Media Panel (Left Column) -->
+        <div class="lg:col-span-7 flex flex-col md:flex-row gap-4">
+          <!-- Desktop Thumbnails (Left Side) / Mobile Thumbnails (Bottom) -->
+          <div class="order-2 md:order-1 md:w-20 flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-[500px] custom-scrollbar pb-2 md:pb-0" id="media-thumbnails">
+            <!-- Dynamic thumbnails injected here -->
+          </div>
+
+          <!-- Main Active Media Container -->
+          <div class="order-1 md:order-2 flex-1 relative bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-md">
+            <!-- Active Image Box -->
+            <div id="active-image-box" class="zoom-container aspect-[3/4] cursor-zoom-in group w-full h-full flex items-center justify-center">
+              <img id="active-image" src="" alt="Active catalog design" class="zoom-image w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-black/5 pointer-events-none"></div>
+              
+              <!-- Zoom Lens Overlay Indicator -->
+              <div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xs text-white text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 opacity-80 group-hover:opacity-0 transition-opacity">
+                <span class="material-symbols-outlined text-sm sm:text-base">zoom_in</span> Hover to Zoom · Click to Expand
+              </div>
+            </div>
+
+            <!-- Active Video Box -->
+            <div id="active-video-box" class="hidden aspect-[3/4] w-full h-full bg-black relative flex items-center justify-center">
+              <video id="active-video" class="w-full h-full object-contain" playsinline></video>
+              
+              <!-- Play / Pause Center Button -->
+              <button id="video-play-btn" class="absolute w-16 h-16 rounded-full bg-burgundy/90 text-cream flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                <span class="material-symbols-outlined text-3xl" id="video-play-icon">play_arrow</span>
+              </button>
+
+              <!-- Video Custom Controls Bar -->
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex items-center justify-between gap-4 text-white text-xs opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
+                <button id="video-control-play" class="hover:text-cream transition"><span class="material-symbols-outlined text-base">play_arrow</span></button>
+                <div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer relative" id="video-seekbar-container">
+                  <div class="h-full bg-burgundy rounded-full w-0" id="video-seekbar-fill"></div>
+                </div>
+                <span id="video-time" class="font-mono text-[10px]">00:00 / 00:00</span>
+                <button id="video-control-mute" class="hover:text-cream transition"><span class="material-symbols-outlined text-base">volume_up</span></button>
+                <button id="video-control-fullscreen" class="hover:text-cream transition"><span class="material-symbols-outlined text-base">fullscreen</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutique Info Sidebar (Right Column) -->
+        <div class="lg:col-span-5 flex flex-col justify-between space-y-8">
+          <div class="space-y-6">
+            <!-- Badges -->
+            <div class="flex flex-wrap items-center gap-3">
+              <span id="badge-collection" class="text-[10px] sm:text-xs font-bold text-burgundy uppercase tracking-widest bg-burgundy/5 px-3 py-1 rounded-full border border-burgundy/10">Showroom Collection</span>
+              <span class="text-[10px] sm:text-xs font-semibold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Custom Tailored to Order
+              </span>
+            </div>
+
+            <!-- Title & Pricing Quote -->
+            <div>
+              <h1 id="dress-title" class="font-display text-3xl sm:text-4xl lg:text-5xl text-burgundy font-bold leading-tight">Dress Title</h1>
+              <div class="h-1 bg-burgundy/10 w-20 mt-4 rounded-full"></div>
+              <p class="text-sm text-gray-400 mt-5">Consultation & Fit: <span class="text-burgundy font-bold text-base">Free Consultation</span></p>
+              <p class="text-xs text-gray-400">Pricing depends on fabrics, embroidery selections, and specific measurements.</p>
+            </div>
+
+            <!-- Description -->
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-xs">
+              <h3 class="text-xs font-bold text-burgundy uppercase tracking-wider mb-2.5">Design Description & Craft Details</h3>
+              <p id="dress-description" class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">Loading descriptions…</p>
+            </div>
+
+            <!-- Premium Highlights Grid -->
+            <div class="grid grid-cols-2 gap-3.5">
+              <div class="bg-burgundy/[0.02] border border-burgundy/5 rounded-xl p-3 flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-burgundy text-lg">workspace_premium</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-800">100% Handcrafted</h4>
+                  <p class="text-[10px] text-gray-400 mt-0.5">Custom zardozi, aari work, and details.</p>
+                </div>
+              </div>
+              <div class="bg-burgundy/[0.02] border border-burgundy/5 rounded-xl p-3 flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-burgundy text-lg">fit_screen</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-800">Perfect Fit Guarantee</h4>
+                  <p class="text-[10px] text-gray-400 mt-0.5">Tailored perfectly to your body shape.</p>
+                </div>
+              </div>
+              <div class="bg-burgundy/[0.02] border border-burgundy/5 rounded-xl p-3 flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-burgundy text-lg">local_shipping</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-800">Boutique Delivery</h4>
+                  <p class="text-[10px] text-gray-400 mt-0.5">Secure shipping to Nalgonda & worldwide.</p>
+                </div>
+              </div>
+              <div class="bg-burgundy/[0.02] border border-burgundy/5 rounded-xl p-3 flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-burgundy text-lg">support_agent</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-800">Expert Styling</h4>
+                  <p class="text-[10px] text-gray-400 mt-0.5">Direct styling advice by Aithagoni Madhavi.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="space-y-3.5 pt-4 border-t border-gray-100">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <!-- Book Tailoring Appointment -->
+              <a id="appointment-btn" href="appointment.html" class="flex-1 py-4 bg-burgundy hover:bg-burgundy-dark text-cream font-bold text-sm text-center rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition duration-300 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-lg">calendar_month</span> Book Fitting Consultation
+              </a>
+
+              <!-- WhatsApp Inquiry -->
+              <a id="whatsapp-btn" href="" target="_blank" rel="noopener noreferrer" class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm text-center rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition duration-300 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.725-1.458L0 24zm6.104-3.473c1.652.98 3.27 1.488 4.905 1.489 5.485 0 9.95-4.466 9.954-9.956.002-2.661-1.033-5.162-2.915-7.046C16.223 3.129 13.727 2.093 11.98 2.093c-5.492 0-9.96 4.467-9.964 9.958-.001 1.761.48 3.477 1.396 4.98L2.43 21.657l4.318-1.13zM16.57 14.86c-.273-.137-1.62-.8-1.871-.892-.253-.092-.437-.137-.62.137-.183.273-.706.892-.867 1.077-.16.183-.321.206-.594.069-.273-.137-1.155-.426-2.2-1.358-.813-.727-1.362-1.624-1.522-1.897-.16-.273-.017-.42.12-.557.123-.124.273-.321.411-.482.137-.16.183-.273.273-.457.092-.183.046-.344-.023-.48-.069-.137-.62-1.492-.849-2.04-.223-.538-.448-.463-.62-.472-.16-.008-.344-.01-.527-.01-.183 0-.48.069-.73.344-.25.273-.956.934-.956 2.279s.979 2.643 1.116 2.827c.137.183 1.928 2.945 4.671 4.129.653.28 1.162.448 1.558.574.656.208 1.253.179 1.726.108.527-.079 1.62-.662 1.849-1.3.228-.638.228-1.186.16-1.3-.069-.113-.253-.183-.526-.32z"/></svg>
+                Inquire via WhatsApp
+              </a>
+            </div>
+
+            <!-- Wishlist Heart Action -->
+            <button id="wishlist-detail-btn" class="w-full py-3.5 border-2 border-gray-200 hover:border-burgundy/40 rounded-full font-semibold text-xs text-gray-700 hover:text-burgundy flex items-center justify-center gap-2 transition duration-300 cursor-pointer shadow-xs bg-white">
+              <svg id="wishlist-detail-heart" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <span id="wishlist-detail-text">Save Design to Wishlist</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Showcase Grid -->
+      <section class="mt-24 border-t border-burgundy/10 pt-16" id="related-section">
+        <div class="flex items-end justify-between mb-8">
+          <div>
+            <p class="text-burgundy text-xs font-semibold tracking-widest uppercase mb-1">More from the Collection</p>
+            <h2 class="font-display text-2xl sm:text-3xl text-burgundy font-bold">Related Designer Pieces</h2>
+          </div>
+          <a href="our-works.html" class="text-xs sm:text-sm text-burgundy font-semibold hover:underline flex items-center gap-1">
+            View Showroom <span class="material-symbols-outlined text-sm">chevron_right</span>
+          </a>
+        </div>
+        <div id="related-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Dynamically populated related works -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Fullscreen Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md hidden flex flex-col justify-between p-4 select-none">
+    <!-- Top Action Row -->
+    <div class="flex items-center justify-between text-white/70 p-2 sm:p-4">
+      <span id="lightbox-counter" class="font-mono text-xs sm:text-sm font-semibold tracking-wider">1 / 1</span>
+      <button id="lightbox-close" class="text-white/70 hover:text-white transition-colors p-2 cursor-pointer focus:outline-none flex items-center justify-center">
+        <span class="material-symbols-outlined text-2xl sm:text-3xl">close</span>
+      </button>
+    </div>
+    
+    <!-- Main Box -->
+    <div class="relative w-full max-w-5xl mx-auto flex items-center justify-center flex-1">
+      <!-- Prev Button -->
+      <button id="lightbox-prev" class="absolute left-2 sm:left-4 z-10 text-white/70 hover:text-white transition-all bg-white/5 hover:bg-white/15 p-2 sm:p-3 rounded-full cursor-pointer focus:outline-none flex items-center justify-center">
+        <span class="material-symbols-outlined text-xl sm:text-2xl">chevron_left</span>
+      </button>
+      
+      <!-- Screen Area -->
+      <div id="lightbox-screen" class="overflow-hidden w-full h-[60vh] sm:h-[70vh] flex items-center justify-center relative cursor-grab">
+        <img id="lightbox-image" src="" class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-100 ease-out origin-center" />
+      </div>
+      
+      <!-- Next Button -->
+      <button id="lightbox-next" class="absolute right-2 sm:right-4 z-10 text-white/70 hover:text-white transition-all bg-white/5 hover:bg-white/15 p-2 sm:p-3 rounded-full cursor-pointer focus:outline-none flex items-center justify-center">
+        <span class="material-symbols-outlined text-xl sm:text-2xl">chevron_right</span>
+      </button>
+    </div>
+    
+    <!-- Bottom Controls -->
+    <div class="flex flex-col items-center gap-4 text-white/75 p-4">
+      <div class="flex items-center gap-6">
+        <button id="lightbox-zoom-out" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"><span class="material-symbols-outlined text-sm sm:text-base">zoom_out</span></button>
+        <span id="lightbox-zoom-level" class="font-mono text-xs sm:text-sm font-bold tracking-wide select-none min-w-[50px] text-center">100%</span>
+        <button id="lightbox-zoom-in" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center"><span class="material-symbols-outlined text-sm sm:text-base">zoom_in</span></button>
+        <button id="lightbox-reset" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer flex items-center justify-center" title="Reset view"><span class="material-symbols-outlined text-sm sm:text-base">restart_alt</span></button>
+      </div>
+      <p class="text-[9px] sm:text-xs text-white/40 select-none text-center">Drag or swipe to pan the image when zoomed in.</p>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="bg-burgundy-dark text-cream/80 py-16 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
+        <div>
+          <p class="font-display text-cream text-lg font-semibold mb-2">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60">Nalgonda, Telangana – 508001</p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Contact</p>
+          <p><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></p>
+          <p><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></p>
+          <p><a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a></p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Hours</p>
+          <p class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Responsive Mobile menu toggler
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+  </script>
+
+  <!-- Interactive Detail Core Engine Script -->
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", async () => {
+      const loadingEl = document.getElementById("product-loading");
+      const errorEl = document.getElementById("product-error");
+      const containerEl = document.getElementById("product-container");
+
+      if (!window.supabaseClient) {
+        loadingEl.innerHTML = `<p class="text-red-600 font-medium">Supabase database is not loaded.</p>`;
+        return;
+      }
+
+      // 1. Retrieve query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const dressId = urlParams.get("id");
+      const dressNameParam = urlParams.get("name");
+
+      if (!dressId && !dressNameParam) {
+        loadingEl.classList.add("hidden");
+        errorEl.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        let work = null;
+
+        // 2. Query Supabase
+        if (dressId) {
+          const { data, error } = await window.supabaseClient
+            .from("works")
+            .select("*")
+            .eq("id", dressId)
+            .maybeSingle();
+          if (error) throw error;
+          work = data;
+        } else if (dressNameParam) {
+          const { data, error } = await window.supabaseClient
+            .from("works")
+            .select("*")
+            .eq("name", dressNameParam)
+            .maybeSingle();
+          if (error) throw error;
+          work = data;
+        }
+
+        if (!work) {
+          loadingEl.classList.add("hidden");
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        // 3. Render page content
+        document.title = `${work.name} | Saanvi Boutique`;
+        
+        document.getElementById("breadcrumb-collection").textContent = work.collection_name || "Catalog";
+        document.getElementById("breadcrumb-title").textContent = work.name;
+
+        document.getElementById("badge-collection").textContent = work.collection_name || "Catalog";
+        document.getElementById("dress-title").textContent = work.name;
+        document.getElementById("dress-description").textContent = work.description || "Beautiful custom design silhouette, crafted to order by Saanvi Boutique.";
+
+        // Prefill consultation buttons
+        const appBtn = document.getElementById("appointment-btn");
+        appBtn.href = `appointment.html?dress=${encodeURIComponent(work.name)}`;
+
+        const waBtn = document.getElementById("whatsapp-btn");
+        const waMsg = `Hi Saanvi Boutique, I am interested in the custom design "${work.name}" from your ${work.collection_name || 'showroom'} collection. Could you please share more details regarding pricing, fabrics, and custom tailoring?`;
+        waBtn.href = `https://wa.me/917013404312?text=${encodeURIComponent(waMsg)}`;
+
+        // Gather media files
+        let images = [];
+        if (work.images && Array.isArray(work.images) && work.images.length > 0) {
+          images = work.images;
+        } else if (work.image_url) {
+          images = [work.image_url];
+        }
+
+        const videoUrl = work.video_url || null;
+
+        // 4. Setup Media Gallery
+        setupMediaGallery(images, videoUrl);
+
+        // 5. Setup Wishlist Status
+        setupWishlistButton(work);
+
+        // 6. Fetch Related Products
+        fetchRelatedProducts(work);
+
+        // Reveal container
+        loadingEl.classList.add("hidden");
+        containerEl.classList.remove("hidden");
+
+      } catch (err) {
+        console.error("Failed to load design details:", err);
+        loadingEl.innerHTML = `<p class="text-red-600 font-medium">Error loading product details. Please reload.</p>`;
+      }
+    });
+
+    // Gallery controller state
+    let activeMediaIndex = 0;
+    let galleryImages = [];
+    let galleryHasVideo = false;
+    let videoUrlString = "";
+
+    function setupMediaGallery(images, videoUrl) {
+      galleryImages = images;
+      galleryHasVideo = !!videoUrl;
+      videoUrlString = videoUrl || "";
+
+      const thumbnailsContainer = document.getElementById("media-thumbnails");
+      thumbnailsContainer.innerHTML = "";
+
+      const mainImage = document.getElementById("active-image");
+      const activeImageBox = document.getElementById("active-image-box");
+      const activeVideoBox = document.getElementById("active-video-box");
+      const activeVideo = document.getElementById("active-video");
+
+      // Render image thumbnails
+      images.forEach((imgUrl, idx) => {
+        const thumb = document.createElement("button");
+        thumb.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-burgundy/40 flex-shrink-0 transition cursor-pointer relative`;
+        thumb.innerHTML = `
+          <img src="${imgUrl}" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-black/5"></div>
+        `;
+        thumb.addEventListener("click", () => selectMedia(idx, false));
+        thumbnailsContainer.appendChild(thumb);
+      });
+
+      // Render video thumbnail if present
+      if (videoUrl) {
+        const videoThumbIdx = images.length;
+        const videoThumb = document.createElement("button");
+        videoThumb.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-amber-500/30 hover:border-burgundy/40 flex-shrink-0 transition cursor-pointer relative bg-slate-900 flex items-center justify-center text-amber-500`;
+        videoThumb.innerHTML = `
+          <span class="material-symbols-outlined text-2xl">movie</span>
+          <div class="absolute inset-0 bg-black/10"></div>
+          <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-amber-500 text-[6px] font-bold tracking-widest text-black px-1 rounded-full uppercase">Video</span>
+        `;
+        videoThumb.addEventListener("click", () => selectMedia(videoThumbIdx, true));
+        thumbnailsContainer.appendChild(videoThumb);
+      }
+
+      // Inner-zoom magnifier on hover (Desktop)
+      activeImageBox.addEventListener("mousemove", (e) => {
+        const rect = activeImageBox.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        mainImage.style.transformOrigin = `${x}% ${y}%`;
+        mainImage.style.transform = "scale(2.5)";
+      });
+
+      activeImageBox.addEventListener("mouseleave", () => {
+        mainImage.style.transform = "scale(1)";
+        mainImage.style.transformOrigin = "center center";
+      });
+
+      // Trigger lightbox on main image click
+      activeImageBox.addEventListener("click", () => {
+        if (!activeVideoBox.classList.contains("hidden")) return; // skip if playing video
+        openLightbox(activeMediaIndex);
+      });
+
+      // Initialize video custom controls
+      setupVideoControls();
+
+      // Show first item
+      selectMedia(0, false);
+    }
+
+    function selectMedia(index, isVideo) {
+      activeMediaIndex = index;
+      
+      const thumbnails = document.getElementById("media-thumbnails").children;
+      Array.from(thumbnails).forEach((t, idx) => {
+        if (idx === index) {
+          t.classList.add("thumbnail-active");
+        } else {
+          t.classList.remove("thumbnail-active");
+        }
+      });
+
+      const mainImage = document.getElementById("active-image");
+      const activeImageBox = document.getElementById("active-image-box");
+      const activeVideoBox = document.getElementById("active-video-box");
+      const activeVideo = document.getElementById("active-video");
+
+      if (isVideo) {
+        activeImageBox.classList.add("hidden");
+        activeVideoBox.classList.remove("hidden");
+        activeVideo.src = videoUrlString;
+        activeVideo.load();
+        resetVideoUI();
+      } else {
+        activeVideoBox.classList.add("hidden");
+        activeImageBox.classList.remove("hidden");
+        mainImage.src = galleryImages[index];
+        activeVideo.pause();
+      }
+    }
+
+    // Video controls bindings
+    function setupVideoControls() {
+      const activeVideo = document.getElementById("active-video");
+      const videoPlayBtn = document.getElementById("video-play-btn");
+      const videoPlayIcon = document.getElementById("video-play-icon");
+      
+      const ctrlPlay = document.getElementById("video-control-play");
+      const ctrlMute = document.getElementById("video-control-mute");
+      const ctrlFullscreen = document.getElementById("video-control-fullscreen");
+      
+      const seekbarContainer = document.getElementById("video-seekbar-container");
+      const seekbarFill = document.getElementById("video-seekbar-fill");
+      const videoTimeText = document.getElementById("video-time");
+
+      function togglePlay() {
+        if (activeVideo.paused || activeVideo.ended) {
+          activeVideo.play();
+          videoPlayBtn.style.opacity = "0";
+          videoPlayBtn.style.pointerEvents = "none";
+          ctrlPlay.querySelector("span").textContent = "pause";
+        } else {
+          activeVideo.pause();
+          videoPlayBtn.style.opacity = "1";
+          videoPlayBtn.style.pointerEvents = "auto";
+          ctrlPlay.querySelector("span").textContent = "play_arrow";
+        }
+      }
+
+      videoPlayBtn.addEventListener("click", togglePlay);
+      ctrlPlay.addEventListener("click", togglePlay);
+      activeVideo.addEventListener("click", togglePlay);
+
+      activeVideo.addEventListener("timeupdate", () => {
+        if (!activeVideo.duration) return;
+        const pct = (activeVideo.currentTime / activeVideo.duration) * 100;
+        seekbarFill.style.width = `${pct}%`;
+        videoTimeText.textContent = `${formatTime(activeVideo.currentTime)} / ${formatTime(activeVideo.duration)}`;
+      });
+
+      seekbarContainer.addEventListener("click", (e) => {
+        const rect = seekbarContainer.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        activeVideo.currentTime = pct * activeVideo.duration;
+      });
+
+      ctrlMute.addEventListener("click", () => {
+        activeVideo.muted = !activeVideo.muted;
+        ctrlMute.querySelector("span").textContent = activeVideo.muted ? "volume_off" : "volume_up";
+      });
+
+      ctrlFullscreen.addEventListener("click", () => {
+        if (activeVideo.requestFullscreen) {
+          activeVideo.requestFullscreen();
+        } else if (activeVideo.webkitRequestFullscreen) {
+          activeVideo.webkitRequestFullscreen();
+        }
+      });
+    }
+
+    function resetVideoUI() {
+      const videoPlayBtn = document.getElementById("video-play-btn");
+      const ctrlPlay = document.getElementById("video-control-play");
+      const seekbarFill = document.getElementById("video-seekbar-fill");
+      const videoTimeText = document.getElementById("video-time");
+
+      videoPlayBtn.style.opacity = "1";
+      videoPlayBtn.style.pointerEvents = "auto";
+      ctrlPlay.querySelector("span").textContent = "play_arrow";
+      seekbarFill.style.width = "0%";
+      videoTimeText.textContent = "00:00 / 00:00";
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    // Lightbox modal logic
+    let lightboxActiveIndex = 0;
+    let lightboxScale = 1;
+    let lightboxIsDragging = false;
+    let lightboxStartX = 0, lightboxStartY = 0;
+    let lightboxTranslateX = 0, lightboxTranslateY = 0;
+
+    const lightboxModal = document.getElementById("lightbox-modal");
+    const lightboxImage = document.getElementById("lightbox-image");
+    const lightboxCounter = document.getElementById("lightbox-counter");
+    const lightboxScreen = document.getElementById("lightbox-screen");
+
+    function openLightbox(index) {
+      lightboxActiveIndex = index;
+      lightboxModal.classList.remove("hidden");
+      resetLightboxZoom();
+      updateLightboxImage();
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.add("hidden");
+    }
+
+    function updateLightboxImage() {
+      lightboxImage.src = galleryImages[lightboxActiveIndex];
+      lightboxCounter.textContent = `${lightboxActiveIndex + 1} / ${galleryImages.length}`;
+      resetLightboxZoom();
+    }
+
+    function resetLightboxZoom() {
+      lightboxScale = 1;
+      lightboxTranslateX = 0;
+      lightboxTranslateY = 0;
+      applyLightboxTransform();
+    }
+
+    function applyLightboxTransform() {
+      lightboxImage.style.transform = `scale(${lightboxScale}) translate(${lightboxTranslateX}px, ${lightboxTranslateY}px)`;
+      document.getElementById("lightbox-zoom-level").textContent = `${Math.round(lightboxScale * 100)}%`;
+      
+      if (lightboxScale > 1) {
+        lightboxScreen.classList.remove("cursor-grab");
+        lightboxScreen.classList.add("cursor-grabbing");
+      } else {
+        lightboxScreen.classList.remove("cursor-grabbing");
+        lightboxScreen.classList.add("cursor-grab");
+      }
+    }
+
+    document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+
+    document.getElementById("lightbox-prev").addEventListener("click", () => {
+      lightboxActiveIndex = (lightboxActiveIndex - 1 + galleryImages.length) % galleryImages.length;
+      updateLightboxImage();
+    });
+
+    document.getElementById("lightbox-next").addEventListener("click", () => {
+      lightboxActiveIndex = (lightboxActiveIndex + 1) % galleryImages.length;
+      updateLightboxImage();
+    });
+
+    document.getElementById("lightbox-zoom-in").addEventListener("click", () => {
+      if (lightboxScale < 4.5) {
+        lightboxScale += 0.25;
+        applyLightboxTransform();
+      }
+    });
+
+    document.getElementById("lightbox-zoom-out").addEventListener("click", () => {
+      if (lightboxScale > 1.0) {
+        lightboxScale -= 0.25;
+        applyLightboxTransform();
+      }
+    });
+
+    document.getElementById("lightbox-reset").addEventListener("click", resetLightboxZoom);
+
+    // Lightbox Pan / Drag logic
+    lightboxScreen.addEventListener("mousedown", (e) => {
+      if (lightboxScale > 1.0) {
+        lightboxIsDragging = true;
+        lightboxStartX = e.clientX - lightboxTranslateX * lightboxScale;
+        lightboxStartY = e.clientY - lightboxTranslateY * lightboxScale;
+        lightboxScreen.style.cursor = "grabbing";
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (lightboxIsDragging && lightboxScale > 1.0) {
+        lightboxTranslateX = (e.clientX - lightboxStartX) / lightboxScale;
+        lightboxTranslateY = (e.clientY - lightboxStartY) / lightboxScale;
+        applyLightboxTransform();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      lightboxIsDragging = false;
+      if (lightboxScale > 1.0) {
+        lightboxScreen.style.cursor = "grab";
+      }
+    });
+
+    // Touch support for mobile panning and two-finger pinch-to-zoom
+    let initialPinchDistance = 0;
+    let initialPinchScale = 1;
+
+    lightboxScreen.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1 && lightboxScale > 1.0) {
+        lightboxIsDragging = true;
+        lightboxStartX = e.touches[0].clientX - lightboxTranslateX * lightboxScale;
+        lightboxStartY = e.touches[0].clientY - lightboxTranslateY * lightboxScale;
+      } else if (e.touches.length === 2) {
+        lightboxIsDragging = false;
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialPinchScale = lightboxScale;
+      }
+    });
+
+    lightboxScreen.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 1 && lightboxIsDragging && lightboxScale > 1.0) {
+        e.preventDefault();
+        lightboxTranslateX = (e.touches[0].clientX - lightboxStartX) / lightboxScale;
+        lightboxTranslateY = (e.touches[0].clientY - lightboxStartY) / lightboxScale;
+        applyLightboxTransform();
+      } else if (e.touches.length === 2 && initialPinchDistance > 0) {
+        e.preventDefault();
+        const currentDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const scaleFactor = currentDistance / initialPinchDistance;
+        lightboxScale = Math.min(Math.max(initialPinchScale * scaleFactor, 1.0), 4.5);
+        applyLightboxTransform();
+      }
+    });
+
+    lightboxScreen.addEventListener("touchend", (e) => {
+      lightboxIsDragging = false;
+      if (e.touches.length < 2) {
+        initialPinchDistance = 0;
+      }
+      if (lightboxScale <= 1.0) {
+        resetLightboxZoom();
+      } else if (e.touches.length === 1) {
+        lightboxIsDragging = true;
+        lightboxStartX = e.touches[0].clientX - lightboxTranslateX * lightboxScale;
+        lightboxStartY = e.touches[0].clientY - lightboxTranslateY * lightboxScale;
+      }
+    });
+
+
+    // Wishlist Persistence Bindings
+    async function setupWishlistButton(work) {
+      const wlBtn = document.getElementById("wishlist-detail-btn");
+      const wlIcon = document.getElementById("wishlist-detail-heart");
+      const wlText = document.getElementById("wishlist-detail-text");
+
+      let session = null;
+      let isSaved = false;
+
+      try {
+        const { data } = await window.supabaseClient.auth.getSession();
+        session = data.session;
+
+        if (session) {
+          // Check if this item is in wishlist
+          const { data: exist } = await window.supabaseClient
+            .from("wishlists")
+            .select("id")
+            .eq("user_id", session.user.id)
+            .eq("item_name", work.name)
+            .maybeSingle();
+
+          if (exist) {
+            isSaved = true;
+            wlIcon.setAttribute("fill", "currentColor");
+            wlIcon.setAttribute("class", "w-5 h-5 text-red-500");
+            wlText.textContent = "Saved in Wishlist";
+          }
+        }
+      } catch (authErr) {
+        console.warn("Unable to fetch session for wishlist checking:", authErr);
+      }
+
+      wlBtn.addEventListener("click", async () => {
+        if (!session) {
+          // Redirect to login
+          window.location.href = "login.html";
+          return;
+        }
+
+        wlBtn.style.pointerEvents = "none";
+        wlBtn.style.opacity = "0.7";
+
+        try {
+          if (isSaved) {
+            // Delete
+            const { error } = await window.supabaseClient
+              .from("wishlists")
+              .delete()
+              .eq("user_id", session.user.id)
+              .eq("item_name", work.name);
+
+            if (error) throw error;
+
+            isSaved = false;
+            wlIcon.setAttribute("fill", "none");
+            wlIcon.setAttribute("class", "w-5 h-5 text-gray-700");
+            wlText.textContent = "Save Design to Wishlist";
+          } else {
+            // Insert
+            const { error } = await window.supabaseClient
+              .from("wishlists")
+              .insert({
+                user_id: session.user.id,
+                item_name: work.name,
+                item_image: work.image_url,
+                item_description: work.description,
+                collection_name: work.collection_name
+              });
+
+            if (error) throw error;
+
+            isSaved = true;
+            wlIcon.setAttribute("fill", "currentColor");
+            wlIcon.setAttribute("class", "w-5 h-5 text-red-500");
+            wlText.textContent = "Saved in Wishlist";
+          }
+        } catch (err) {
+          console.error("Failed to update wishlist:", err);
+          alert("Could not update your wishlist. Please try again.");
+        } finally {
+          wlBtn.style.pointerEvents = "auto";
+          wlBtn.style.opacity = "1";
+        }
+      });
+    }
+
+
+    // Related Products Recommender
+    async function fetchRelatedProducts(work) {
+      const grid = document.getElementById("related-grid");
+      const section = document.getElementById("related-section");
+
+      if (!work.category_id) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      try {
+        const { data: related, error } = await window.supabaseClient
+          .from("works")
+          .select("id, name, image_url, collection_name")
+          .eq("category_id", work.category_id)
+          .neq("id", work.id)
+          .limit(4);
+
+        if (error) throw error;
+
+        if (!related || related.length === 0) {
+          section.classList.add("hidden");
+          return;
+        }
+
+        grid.innerHTML = related.map(item => `
+          <div class="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative border border-gray-100 flex flex-col justify-between">
+            <a href="dress-detail.html?id=${item.id}" class="block aspect-[3/4] overflow-hidden bg-burgundy/5 relative">
+              <img src="${item.image_url || 'https://images.unsplash.com/photo-1610030469983-98e550d6198c?w=500&q=80'}" alt="${item.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+              <div class="absolute inset-0 bg-gradient-to-t from-burgundy/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                <span class="text-xs font-bold text-cream bg-burgundy/80 px-3 py-1.5 rounded-full flex items-center gap-1">
+                  View Design <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
+              </div>
+            </a>
+            <div class="p-4 border-b-4 border-burgundy">
+              <span class="text-[9px] font-bold text-burgundy uppercase tracking-widest block mb-1">${item.collection_name}</span>
+              <a href="dress-detail.html?id=${item.id}" class="font-display font-semibold text-burgundy hover:underline text-sm sm:text-base line-clamp-1">${item.name}</a>
+            </div>
+          </div>
+        `).join("");
+
+      } catch (err) {
+        console.error("Failed to fetch related products:", err);
+        section.classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>

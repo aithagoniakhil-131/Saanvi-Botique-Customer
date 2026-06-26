@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collections | Saanvi Boutique & Matching Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { burgundy: "#7d2841", cream: "#e6e5b9", "burgundy-dark": "#5c1c30", "cream-light": "#f5f4e4" },
+          fontFamily: { display: ["Playfair Display", "serif"], sans: ["Plus Jakarta Sans", "sans-serif"] },
+          animation: { "fade-up": "fadeUp 0.8s ease-out forwards" },
+          keyframes: { fadeUp: { "0%": { opacity: "0", transform: "translateY(30px)" }, "100%": { opacity: "1", transform: "translateY(0)" } } },
+        },
+      },
+    };
+  </script>
+  <style>
+    .collection-card:hover .collection-overlay { opacity: 1; }
+    .collection-card:hover img { transform: scale(1.08); }
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #e6e5b9; transition: width 0.3s ease; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link active text-cream text-sm font-medium tracking-wide">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream font-medium py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="pt-32 pb-16 bg-burgundy">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-cream/70 text-sm tracking-[0.3em] uppercase mb-4 animate-fade-up">Browse Our Creations</p>
+      <h1 class="font-display text-5xl sm:text-6xl text-cream font-semibold animate-fade-up">All Collections</h1>
+      <div class="w-24 h-1 bg-cream mx-auto mt-8 rounded-full"></div>
+      <p class="text-cream/75 max-w-2xl mx-auto mt-8 text-lg leading-relaxed">Each collection reflects our dedication to fine fabrics, intricate detailing, and timeless elegance.</p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="collections-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+        <!-- Spinner Loading State -->
+        <div class="col-span-full text-center py-16 text-burgundy/60">
+          <div class="inline-block w-8 h-8 border-2 border-burgundy/30 border-t-burgundy rounded-full animate-spin mb-4"></div>
+          <p class="font-medium tracking-wide">Loading boutique collections…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
+        <div>
+          <p class="font-display text-cream text-lg font-semibold mb-2">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60">Nalgonda, Telangana – 508001</p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Contact</p>
+          <p><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></p>
+          <p><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Hours</p>
+          <p class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+  </script>
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", async () => {
+      const grid = document.getElementById("collections-grid");
+
+      if (!window.supabaseClient) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 text-red-600">
+            <p>Database configuration missing. Please verify supabase-config.js.</p>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        // Fetch categories directly from Supabase categories table
+        const { data: categories, error } = await window.supabaseClient
+          .from("categories")
+          .select("id, name, description, slug, image_url")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!categories || categories.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full text-center py-16 text-burgundy/60">
+              <p class="font-display text-2xl font-semibold">Collections Coming Soon</p>
+              <p class="text-sm mt-2">Our latest catalog drawers are currently being prepared.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Render live categories
+        grid.innerHTML = categories.map(cat => buildCollectionCard(cat)).join("");
+
+      } catch (err) {
+        console.error("Failed to load collections from Supabase:", err);
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 text-red-600/80">
+            <p>Unable to retrieve boutique collections. Please check your connection.</p>
+          </div>
+        `;
+      }
+    });
+
+    /**
+     * Build HTML Card for a Boutique Category
+     */
+    function buildCollectionCard(cat) {
+      const name = cat.name || "Untitled Collection";
+      const description = cat.description || "Explore this boutique category.";
+      const image = cat.image_url || "https://images.unsplash.com/photo-1583391735258-e251352654d2?w=600&q=80";
+      const slug = cat.slug || cat.id;
+
+      return `
+        <a href="inside-collection.html?slug=${encodeURIComponent(slug)}" class="collection-card group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 bg-white animate-fade-up">
+          <div class="relative aspect-[4/3] overflow-hidden">
+            <img src="${image}" alt="${name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+            <div class="collection-overlay absolute inset-0 bg-burgundy/60 opacity-0 transition-opacity duration-300 flex items-end p-4 sm:p-6">
+              <p class="text-cream text-xs sm:text-sm leading-relaxed line-clamp-2">${description}</p>
+            </div>
+          </div>
+          <div class="p-3 sm:p-6 bg-white border-t-4 border-burgundy">
+            <h3 class="font-display text-sm sm:text-xl text-burgundy font-semibold group-hover:text-burgundy-dark transition line-clamp-1">${name}</h3>
+            <p class="text-gray-500 text-[10px] sm:text-sm mt-1 sm:mt-2 flex items-center gap-1">
+              View Collection
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </p>
+          </div>
+        </a>
+      `;
+    }
+  </script>
+</body>
+</html>

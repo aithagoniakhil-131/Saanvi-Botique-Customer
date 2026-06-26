@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Saanvi Boutique</string>
+    <string name="title_activity_main">Saanvi Boutique</string>
+    <string name="package_name">com.saanviboutique.app</string>
+    <string name="custom_url_scheme">com.saanviboutique.app</string>
+</resources>

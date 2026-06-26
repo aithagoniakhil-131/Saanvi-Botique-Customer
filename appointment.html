@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Visit | Saanvi Boutique & Matching Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { burgundy: "#7d2841", cream: "#e6e5b9", "burgundy-dark": "#5c1c30", "cream-light": "#f5f4e4" },
+          fontFamily: { display: ["Playfair Display", "serif"], sans: ["Plus Jakarta Sans", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+  <style>
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #e6e5b9; transition: width 0.3s ease; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    .form-input:focus { outline: none; ring: 2px; box-shadow: 0 0 0 3px rgba(125, 40, 65, 0.2); border-color: #7d2841; }
+    .slot-btn.selected, .service-btn.selected {
+      background-color: #7d2841;
+      color: #e6e5b9;
+      border-color: #7d2841;
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link active text-cream text-sm font-medium tracking-wide">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream font-medium py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="pt-32 pb-16 bg-burgundy">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-cream/70 text-sm tracking-[0.3em] uppercase mb-4">Private Consultation</p>
+      <h1 class="font-display text-5xl sm:text-6xl text-cream font-semibold">Book a Visit</h1>
+      <div class="w-24 h-1 bg-cream mx-auto mt-8 rounded-full"></div>
+      <p class="text-cream/75 max-w-2xl mx-auto mt-8 text-lg leading-relaxed">Schedule a consultation with <span class="text-cream font-medium">Aithagoni Madhavi</span> and our team for bridal, custom designing, or matching center services.</p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6">
+      <form id="appointment-form" class="bg-white rounded-2xl shadow-xl p-8 sm:p-10 border-t-4 border-burgundy space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-semibold text-burgundy mb-2">Full Name *</label>
+          <input type="text" id="name" name="name" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="Your full name" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label for="phone" class="block text-sm font-semibold text-burgundy mb-2">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="+91 7013404312" />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-semibold text-burgundy mb-2">Email Address *</label>
+            <input type="email" id="email" name="email" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" placeholder="you@email.com" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-burgundy mb-3">Service Type *</label>
+          <input type="hidden" id="service" name="service" />
+          <div id="service-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Bridal Consultation">Bridal Consultation</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Custom Outfit Designing">Custom Outfit Designing</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Saree Blouse Measurement">Saree Blouse Measurement</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Matching Center Selection">Matching Center Selection</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Alterations & Fittings">Alterations & Fittings</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Designer Saree Consultation">Designer Saree Consultation</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Bridal Lehenga Designing">Bridal Lehenga Designing</button>
+            <button type="button" class="service-btn text-left px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-medium text-gray-700 hover:border-burgundy transition" data-value="Embroidery & Aari Work Consultation">Embroidery & Aari Work Consultation</button>
+          </div>
+        </div>
+        <div>
+          <label for="date" class="block text-sm font-semibold text-burgundy mb-2">Preferred Date *</label>
+          <input type="date" id="date" name="date" required class="form-input w-full px-4 py-3 rounded-lg border border-gray-200 transition" />
+          <p class="text-gray-400 text-xs mt-1">Sunday appointments are not available.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-burgundy mb-3">Time Slot *</label>
+          <input type="hidden" id="time" name="time" />
+          <div id="time-slots" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <button type="button" class="slot-btn px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-burgundy transition" data-value="10:00 AM">10:00 AM</button>
+            <button type="button" class="slot-btn px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-burgundy transition" data-value="01:00 PM">01:00 PM</button>
+            <button type="button" class="slot-btn px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-burgundy transition" data-value="04:00 PM">04:00 PM</button>
+            <button type="button" class="slot-btn px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-burgundy transition" data-value="07:00 PM">07:00 PM</button>
+            <button type="button" class="slot-btn px-4 py-3 rounded-lg border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-burgundy transition" data-value="09:00 PM">09:00 PM</button>
+          </div>
+        </div>
+        <div id="form-error" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg"></div>
+        <button type="submit" id="submit-btn" class="w-full py-4 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
+          Confirm Booking
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
+        <div>
+          <p class="font-display text-cream text-lg font-semibold mb-2">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60">Nalgonda, Telangana – 508001</p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Contact</p>
+          <p><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></p>
+          <p><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></p>
+          <p><a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a></p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Hours</p>
+          <p class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+
+    const dateInput = document.getElementById("date");
+    if (dateInput) {
+      dateInput.min = new Date().toISOString().split("T")[0];
+      dateInput.addEventListener("change", () => {
+        const selected = new Date(dateInput.value + "T00:00:00");
+        if (selected.getDay() === 0) {
+          dateInput.setCustomValidity("We are closed on Sundays. Please choose Monday – Saturday.");
+          dateInput.reportValidity();
+        } else {
+          dateInput.setCustomValidity("");
+        }
+      });
+    }
+
+    function setupToggleButtons(buttonSelector, hiddenInputId) {
+      const buttons = document.querySelectorAll(buttonSelector);
+      const hiddenInput = document.getElementById(hiddenInputId);
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          hiddenInput.value = btn.dataset.value;
+        });
+      });
+    }
+
+    setupToggleButtons(".service-btn", "service");
+    setupToggleButtons(".slot-btn", "time");
+
+    // Pre-select service type if booking from a dress detail or wishlist page
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dressParam = urlParams.get("dress") || urlParams.get("ref");
+      if (dressParam) {
+        // Automatically select "Custom Outfit Designing" or "Bridal Consultation"
+        const targetService = dressParam.toLowerCase().includes("bridal") ? "Bridal Consultation" : "Custom Outfit Designing";
+        const btn = document.querySelector(`.service-btn[data-value="${targetService}"]`);
+        if (btn) {
+          btn.click();
+        }
+        
+        // Show a visual badge/note on the header/form
+        const titleSec = document.querySelector("section.pt-32 p");
+        if (titleSec) {
+          titleSec.innerHTML = `Consultation for: <span class="text-cream font-bold underline">${dressParam}</span>`;
+        }
+      }
+    });
+  </script>
+
+  <script>
+    const form = document.getElementById("appointment-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const formError = document.getElementById("form-error");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formError.classList.add("hidden");
+
+      if (!form.service.value) {
+        formError.textContent = "Please select a service type.";
+        formError.classList.remove("hidden");
+        return;
+      }
+      if (!form.time.value) {
+        formError.textContent = "Please select a time slot.";
+        formError.classList.remove("hidden");
+        return;
+      }
+      const selectedDate = new Date(form.date.value + "T00:00:00");
+      if (selectedDate.getDay() === 0) {
+        formError.textContent = "We are closed on Sundays. Please choose Monday – Saturday.";
+        formError.classList.remove("hidden");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Booking…";
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const dressParam = urlParams.get("dress") || urlParams.get("ref");
+        let clientName = form.name.value.trim();
+        if (dressParam) {
+          clientName += ` (Dress: ${dressParam})`;
+        }
+
+        // Construct structured message body
+        const messageText = `Service: ${form.service.value}\nDate: ${form.date.value}\nTime Slot: ${form.time.value}\nEmail: ${form.email.value.trim()}`;
+
+        const { error } = await window.supabaseClient
+          .from("enquiries")
+          .insert({
+            customer_name: clientName,
+            phone_number: form.phone.value.trim(),
+            message: messageText,
+            status: "pending"
+          });
+
+        if (error) throw error;
+
+        console.log("Appointment enquiry saved to Supabase:", { service: form.service.value, date: form.date.value, time: form.time.value });
+        window.location.href = "booking-confirmed.html";
+      } catch (error) {
+        console.error("Appointment booking error:", error);
+        formError.textContent = "Something went wrong. Please try again, call +91 7013404312, or message us on WhatsApp.";
+        formError.classList.remove("hidden");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Confirm Booking";
+      }
+    });
+  </script>
+</body>
+</html>

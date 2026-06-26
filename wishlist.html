@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Wishlist | Saanvi Boutique & Matching Center</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            burgundy: "#7d2841",
+            cream: "#e6e5b9",
+            "burgundy-dark": "#5c1c30",
+            "cream-light": "#f5f4e4",
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(230, 229, 185, 0.3);
+    }
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #e6e5b9;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+    .wishlist-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased min-h-screen flex flex-col">
+
+  <!-- Header Section (Dynamic) -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream/80 py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="pt-32 pb-16 bg-burgundy">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">
+      <p class="text-cream/70 text-sm tracking-[0.3em] uppercase mb-4">Saved Designs</p>
+      <h1 class="font-display text-5xl sm:text-6xl text-cream font-semibold">My Wishlist</h1>
+      <div class="w-24 h-1 bg-cream mx-auto mt-8 rounded-full"></div>
+      <p class="text-cream/75 max-w-2xl mx-auto mt-8 text-lg leading-relaxed">Your personal collection of favored silhouettes, heavy bridal lehengas, and custom designer blouses.</p>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    
+    <!-- Loading State -->
+    <div id="wishlist-loading" class="flex flex-col items-center justify-center py-20 text-burgundy/60">
+      <div class="w-12 h-12 border-4 border-burgundy/30 border-t-burgundy rounded-full animate-spin mb-4"></div>
+      <p class="font-medium tracking-wide">Retrieving your saved designs…</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="wishlist-empty" class="hidden text-center py-24 max-w-md mx-auto">
+      <div class="w-20 h-20 rounded-full bg-burgundy/5 flex items-center justify-center mx-auto mb-6 border border-burgundy/10 text-burgundy/50">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </div>
+      <h2 class="font-display text-2xl text-burgundy font-semibold mb-3">Your Wishlist is Empty</h2>
+      <p class="text-gray-500 mb-8 leading-relaxed">Explore our catalog and click the heart icon on any design to save it here for reference.</p>
+      <a href="our-works.html" class="px-8 py-3.5 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg hover:shadow-xl inline-block">
+        Browse Showcase
+      </a>
+    </div>
+
+    <!-- Wishlist Grid -->
+    <div id="wishlist-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <!-- Dynamic Wishlist Cards Injected Here -->
+    </div>
+
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="bg-burgundy-dark text-cream/80 py-16 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
+        <div>
+          <p class="font-display text-cream text-lg font-semibold mb-2">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60">Nalgonda, Telangana – 508001</p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Contact</p>
+          <p><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></p>
+          <p><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></p>
+        </div>
+        <div>
+          <p class="text-cream font-semibold mb-2">Hours</p>
+          <p class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM<br />Sunday: Closed</p>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile Drawer Trigger
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+  </script>
+
+  <!-- Fetch & Display Wishlist Logic -->
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", async () => {
+      const loadingEl = document.getElementById("wishlist-loading");
+      const emptyEl = document.getElementById("wishlist-empty");
+      const gridEl = document.getElementById("wishlist-grid");
+
+      // Verify Supabase integration
+      if (!window.supabaseClient) {
+        loadingEl.innerHTML = `<p class="text-red-600 font-medium">Supabase configuration not detected.</p>`;
+        return;
+      }
+
+      // Check current session
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      if (!session) {
+        // Redirection handled by auth-nav.js, but fallback UI just in case
+        loadingEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+
+      const userId = session.user.id;
+
+      // Fetch wishlist records matching current user
+      try {
+        const { data: wishlistItems, error } = await window.supabaseClient
+          .from("wishlists")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        loadingEl.classList.add("hidden");
+
+        if (!wishlistItems || wishlistItems.length === 0) {
+          emptyEl.classList.remove("hidden");
+          return;
+        }
+
+        // Render wishlist cards
+        gridEl.innerHTML = wishlistItems.map(item => buildWishlistCard(item)).join("");
+        gridEl.classList.remove("hidden");
+
+        // Wire up deletion handlers dynamically
+        setupDeleteListeners();
+
+      } catch (err) {
+        console.error("Error retrieving wishlist:", err);
+        loadingEl.innerHTML = `<p class="text-red-600 font-medium">Unable to load wishlist. Please try again later.</p>`;
+      }
+    });
+
+    /**
+     * Build HTML Card for a Wishlisted Item
+     */
+    function buildWishlistCard(item) {
+      const id = item.id;
+      const name = item.item_name;
+      const image = item.item_image || "https://images.unsplash.com/photo-1610030469983-98e550d6198c?w=500&q=80";
+      const desc = item.item_description || "Boutique custom design silhouette.";
+      const collection = item.collection_name || "Showroom Catalog";
+      const detailLink = `dress-detail.html?name=${encodeURIComponent(name)}`;
+
+      return `
+        <div id="wishlist-item-${id}" class="wishlist-card group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl flex flex-col relative transform hover:-translate-y-1">
+          
+          <!-- Image Section -->
+          <div class="relative aspect-[3/4] overflow-hidden bg-burgundy/10">
+            <a href="${detailLink}" class="block w-full h-full">
+              <img src="${image}" alt="${name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+              <div class="absolute inset-0 bg-gradient-to-t from-burgundy/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+            
+            <!-- Quick Remove Button (Top Right Red Icon) -->
+            <button data-id="${id}" class="remove-btn absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition duration-300 shadow-md cursor-pointer" title="Remove from Wishlist">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Description Section -->
+          <div class="p-5 flex-1 flex flex-col justify-between border-b-4 border-burgundy">
+            <div>
+              <span class="text-[10px] text-burgundy font-bold uppercase tracking-wider bg-burgundy/5 px-2.5 py-1 rounded-full">${collection}</span>
+              <h3 class="font-display text-xl font-semibold text-burgundy mt-3 leading-snug hover:underline">
+                <a href="${detailLink}">${name}</a>
+              </h3>
+              <p class="text-gray-500 text-sm mt-2 line-clamp-3">${desc}</p>
+            </div>
+            
+            <!-- CTA Button inside card -->
+            <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+              <a href="${detailLink}" class="text-burgundy hover:text-burgundy-dark font-semibold text-sm flex items-center gap-1 group/btn">
+                View Details
+                <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+              <button data-id="${id}" class="remove-text-btn text-gray-400 hover:text-red-600 text-xs font-medium transition cursor-pointer">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Bind click listeners to all remove buttons on wishlist cards
+     */
+    function setupDeleteListeners() {
+      const removeButtons = document.querySelectorAll(".remove-btn, .remove-text-btn");
+      removeButtons.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const itemId = btn.getAttribute("data-id");
+          const cardEl = document.getElementById(`wishlist-item-${itemId}`);
+          
+          if (!itemId || !cardEl) return;
+          
+          // Disable button during network call to prevent double clicks
+          btn.style.pointerEvents = "none";
+          btn.style.opacity = "0.5";
+
+          try {
+            // Delete from Supabase
+            const { error } = await window.supabaseClient
+              .from("wishlists")
+              .delete()
+              .eq("id", itemId);
+
+            if (error) throw error;
+
+            // Trigger elegant fade-out slide animation
+            cardEl.style.opacity = "0";
+            cardEl.style.transform = "scale(0.9) translateY(15px)";
+            
+            setTimeout(() => {
+              cardEl.remove();
+              
+              // If no cards left in grid, display empty state
+              const remainingCards = document.querySelectorAll(".wishlist-card");
+              if (remainingCards.length === 0) {
+                document.getElementById("wishlist-grid").classList.add("hidden");
+                document.getElementById("wishlist-empty").classList.remove("hidden");
+              }
+            }, 400);
+
+          } catch (err) {
+            console.error("Failed to remove item:", err);
+            alert("Unable to remove item from wishlist. Please try again.");
+            btn.style.pointerEvents = "auto";
+            btn.style.opacity = "1";
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

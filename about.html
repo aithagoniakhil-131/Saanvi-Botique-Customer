@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | Saanvi Boutique & Matching Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="capacitor.js"></script>
+  <script src="auth-nav.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { burgundy: "#7d2841", cream: "#e6e5b9", "burgundy-dark": "#5c1c30", "cream-light": "#f5f4e4" },
+          fontFamily: { display: ["Playfair Display", "serif"], sans: ["Plus Jakarta Sans", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+  <style>
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #e6e5b9; transition: width 0.3s ease; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(230, 229, 185, 0.25);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased">
+
+  <header class="fixed top-0 left-0 right-0 z-50 bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='index.html'" class="lg:hidden text-cream p-1 hover:text-white cursor-pointer mr-1" aria-label="Go back">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <a href="index.html" class="flex items-center gap-3">
+            <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+            <div>
+              <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+              <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+            </div>
+          </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="index.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Home</a>
+          <a href="about.html" class="nav-link active text-cream text-sm font-medium tracking-wide">About</a>
+          <a href="collections.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Collections</a>
+          <a href="our-works.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Our Works</a>
+          <a href="appointment.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Book a Visit</a>
+          <a href="contact.html" class="nav-link text-cream/80 hover:text-cream text-sm font-medium tracking-wide transition">Contact</a>
+          <a href="login.html" class="ml-2 px-5 py-2.5 bg-cream text-burgundy text-sm font-semibold rounded-full hover:bg-white transition shadow-md">Login</a>
+        </div>
+        <button id="mobile-menu-btn" class="lg:hidden text-cream p-2" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden lg:hidden pb-6 space-y-3">
+        <a href="index.html" class="block text-cream/80 py-2">Home</a>
+        <a href="about.html" class="block text-cream font-medium py-2">About</a>
+        <a href="collections.html" class="block text-cream/80 py-2">Collections</a>
+        <a href="our-works.html" class="block text-cream/80 py-2">Our Works</a>
+        <a href="appointment.html" class="block text-cream/80 py-2">Book a Visit</a>
+        <a href="contact.html" class="block text-cream/80 py-2">Contact</a>
+        <a href="login.html" class="inline-block mt-2 px-5 py-2 bg-cream text-burgundy font-semibold rounded-full">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="pt-32 pb-16 bg-burgundy">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-cream/70 text-sm tracking-[0.3em] uppercase mb-4">Our Story</p>
+      <h1 class="font-display text-5xl sm:text-6xl text-cream font-semibold">About Saanvi</h1>
+      <div class="w-24 h-1 bg-cream mx-auto mt-8 rounded-full"></div>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="text-burgundy text-sm tracking-[0.2em] uppercase mb-3 font-medium">Founder & Head Fashion Designer</p>
+          <h2 class="font-display text-4xl text-burgundy font-semibold mb-2">Aithagoni Madhavi</h2>
+          <p class="text-gray-500 mb-8">Leading Saanvi Boutique with vision, artistry, and dedication to every client.</p>
+          <p class="text-gray-600 leading-relaxed mb-6">
+            Saanvi Boutique was established in 2024 with a passion for creating elegant, customized fashion that celebrates every woman's unique style. Our mission is to blend traditional craftsmanship with modern fashion trends, delivering high-quality outfits that make every occasion special.
+          </p>
+          <p class="text-gray-600 leading-relaxed mb-6">
+            From bridal wear to designer blouses and ethnic collections, we focus on providing personalized designs that reflect beauty, confidence, and individuality.
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            Visit us in Nalgonda's Old City and experience the Saanvi difference — where every garment is a celebration of you.
+          </p>
+        </div>
+        <div class="relative">
+          <div class="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
+            <img id="about-img" src="https://images.unsplash.com/photo-1558171813-4c088754af81?w=700&q=80" alt="Saanvi Boutique interior" class="w-full h-full object-cover" />
+          </div>
+          <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-cream rounded-2xl flex items-center justify-center shadow-lg border-4 border-white">
+            <div class="text-center">
+              <p class="font-display text-3xl text-burgundy font-bold">2024</p>
+              <p class="text-xs text-gray-600 uppercase tracking-wider">Est.<br />Founded</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-burgundy">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="font-display text-4xl text-cream font-semibold">Our Core Specialties</h2>
+        <div class="w-24 h-1 bg-cream mx-auto mt-6 rounded-full"></div>
+        <p class="text-cream/70 mt-4 max-w-2xl mx-auto">Expert craftsmanship across every aspect of ethnic and bridal fashion.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Custom Bridal Lehengas</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Bespoke bridal lehengas for your wedding day.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Designer Sarees</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Silk and designer sarees for every occasion.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Aari Work & Embroidery</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Handcrafted embroidery and aari detailing.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Heavy Zardozi Blouses</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Rich zardozi work on premium blouses.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Bridal & Tassels</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Collections for weddings and celebrations.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Matching Dress Materials</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Fabrics, linings, and coordinated accessories.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Custom Outfit Designing</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Fully personalized outfit creation.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <h3 class="font-display text-lg text-cream mb-2">Alterations & Fittings</h3>
+          <p class="text-cream/70 text-sm leading-relaxed">Precision alterations for the perfect fit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-cream-light">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="font-display text-4xl text-burgundy font-semibold">Our Values</h2>
+        <div class="w-24 h-1 bg-burgundy mx-auto mt-6 rounded-full"></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center p-8 bg-white rounded-2xl shadow-md border-t-4 border-burgundy">
+          <div class="w-16 h-16 bg-burgundy/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="font-display text-xl text-burgundy mb-3">Artistry</h3>
+          <p class="text-gray-600 leading-relaxed">We honor traditional craftsmanship while infusing every piece with creative innovation.</p>
+        </div>
+        <div class="text-center p-8 bg-white rounded-2xl shadow-md border-t-4 border-burgundy">
+          <div class="w-16 h-16 bg-burgundy/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <h3 class="font-display text-xl text-burgundy mb-3">Personalization</h3>
+          <p class="text-gray-600 leading-relaxed">Every client receives individualized attention to ensure their garment is truly one-of-a-kind.</p>
+        </div>
+        <div class="text-center p-8 bg-white rounded-2xl shadow-md border-t-4 border-burgundy">
+          <div class="w-16 h-16 bg-burgundy/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-burgundy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </div>
+          <h3 class="font-display text-xl text-burgundy mb-3">Quality</h3>
+          <p class="text-gray-600 leading-relaxed">We source premium fabrics and maintain rigorous standards at every stage of production.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-cream">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <h2 class="font-display text-3xl text-burgundy font-semibold mb-4">Experience Saanvi</h2>
+      <p class="text-gray-600 mb-8">Visit our boutique or browse our collections to discover the Saanvi difference.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="collections.html" class="px-8 py-3 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition">View Collections</a>
+        <a href="appointment.html" class="px-8 py-3 border-2 border-burgundy text-burgundy font-semibold rounded-full hover:bg-burgundy/5 transition">Book a Visit</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div class="lg:col-span-2">
+          <p class="font-display text-cream text-xl font-semibold mb-4">Saanvi Boutique & Matching Center</p>
+          <p class="text-cream/60 leading-relaxed max-w-md text-sm">Founded by Aithagoni Madhavi in 2024 — personalized designs that reflect beauty, confidence, and individuality.</p>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Quick Links</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="collections.html" class="hover:text-cream transition">Collections</a></li>
+            <li><a href="appointment.html" class="hover:text-cream transition">Book a Visit</a></li>
+            <li><a href="contact.html" class="hover:text-cream transition">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-4 tracking-wide">Contact</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a></li>
+            <li><a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></li>
+            <li><a href="mailto:saanvibotique123@gmail.com" class="hover:text-cream transition">saanvibotique123@gmail.com</a></li>
+            <li class="text-cream/60">Mon – Sat: 09:00 AM – 10:30 PM</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cream/10 pt-8 text-center text-sm text-cream/50">
+        <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+
+    // Dynamic About Us Image Loading from Supabase Storage
+    document.addEventListener("DOMContentLoaded", () => {
+      const aboutImg = document.getElementById("about-img");
+      if (aboutImg) {
+        const publicUrl = "https://oemyhcypthjkuglixpso.supabase.co/storage/v1/object/public/boutique/about_us/about_image.png";
+        
+        // Use an Image object to probe if the custom image exists
+        const probeImg = new Image();
+        probeImg.onload = () => {
+          aboutImg.src = publicUrl + "?t=" + Date.now();
+        };
+        probeImg.onerror = () => {
+          // Keep the default Unsplash image
+          aboutImg.src = "https://images.unsplash.com/photo-1558171813-4c088754af81?w=700&q=80";
+        };
+        probeImg.src = publicUrl + "?t=" + Date.now();
+      }
+    });
+  </script>
+</body>
+</html>

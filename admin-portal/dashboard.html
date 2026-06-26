@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Saanvi Boutique | Admin Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<script>
+tailwind.config = {
+theme:{
+extend:{
+colors:{
+primary:"#7d2841",
+primaryDark:"#5c1c30",
+cream:"#e6e5b9",
+creamLight:"#f5f4e4"
+},
+fontFamily:{
+display:["Playfair Display","serif"],
+sans:["Plus Jakarta Sans","sans-serif"]
+}
+}
+}
+};
+</script>
+
+<style>
+body{
+font-family:'Plus Jakarta Sans',sans-serif;
+}
+</style>
+
+<script src="admin-config.js"></script>
+<script src="admin-guard.js"></script>
+<script>
+async function loadDashboardData() {
+  try {
+    const client = window.supabaseClient;
+    const { count: categoryCount } = await client.from("categories").select("*", { count: "exact", head: true });
+    const { count: worksCount } = await client.from("catalog_works").select("*", { count: "exact", head: true });
+    const { count: enquiryCount } = await client.from("enquiries").select("*", { count: "exact", head: true });
+
+    document.getElementById("categoriesCount").textContent = categoryCount || 0;
+    document.getElementById("worksCount").textContent = worksCount || 0;
+    document.getElementById("enquiriesCount").textContent = enquiryCount || 0;
+  } catch (err) {
+    console.error("Dashboard metrics error:", err);
+  }
+}
+
+document.addEventListener("admin:authenticated", () => {
+  document.getElementById("loader").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  loadDashboardData();
+});
+</script>
+
+</head>
+
+<body class="bg-creamLight">
+
+<div id="loader"
+class="min-h-screen flex items-center justify-center">
+
+<div class="text-center">
+
+<div
+class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4">
+</div>
+
+<p class="text-primary font-semibold">
+Authenticating Admin...
+</p>
+
+</div>
+
+</div>
+
+<div id="dashboard"
+class="hidden min-h-screen flex flex-col">
+
+<header class="bg-primary text-white shadow-lg sticky top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+
+<div class="flex items-center gap-3">
+
+<img src="../logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+
+<div>
+
+<h1
+class="font-display text-lg text-cream">
+Saanvi Boutique
+</h1>
+
+<p class="text-xs opacity-70">
+Admin Workspace
+</p>
+
+</div>
+
+</div>
+
+<div class="hidden md:flex gap-6 items-center">
+
+<a href="dashboard.html" class="text-cream border-b-2 border-cream">
+Dashboard
+</a>
+
+<a href="sections.html">
+Categories
+</a>
+
+<a href="receipts.html">
+Receipts
+</a>
+
+<a href="manage.html">
+Manage Works
+</a>
+
+<a href="enquiries.html">
+Enquiries
+</a>
+
+<a href="settings.html">
+Settings
+</a>
+
+<button
+onclick="logout()"
+class="bg-cream text-primary px-4 py-2 rounded-full font-semibold">
+Sign Out
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10">
+
+<div class="mb-10">
+
+<h2
+class="font-display text-4xl text-primary font-bold mb-2">
+
+Boutique Performance Overview
+
+</h2>
+
+<p class="text-gray-500">
+Real-time statistics from your boutique platform.
+</p>
+
+</div>
+
+<div
+class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+<div
+class="bg-white rounded-2xl p-8 shadow border-t-4 border-primary">
+
+<div class="flex justify-between">
+
+<div>
+
+<p class="text-gray-500 text-sm">
+Categories
+</p>
+
+<h3
+id="categoriesCount"
+class="text-4xl font-bold mt-2">
+0
+</h3>
+
+</div>
+
+<span class="material-symbols-outlined text-primary text-4xl">
+category
+</span>
+
+</div>
+
+</div>
+
+<div
+class="bg-white rounded-2xl p-8 shadow border-t-4 border-primary">
+
+<div class="flex justify-between">
+
+<div>
+
+<p class="text-gray-500 text-sm">
+Catalog Works
+</p>
+
+<h3
+id="worksCount"
+class="text-4xl font-bold mt-2">
+0
+</h3>
+
+</div>
+
+<span class="material-symbols-outlined text-primary text-4xl">
+collections
+</span>
+
+</div>
+
+</div>
+
+<div
+class="bg-white rounded-2xl p-8 shadow border-t-4 border-primary">
+
+<div class="flex justify-between">
+
+<div>
+
+<p class="text-gray-500 text-sm">
+Enquiries
+</p>
+
+<h3
+id="enquiriesCount"
+class="text-4xl font-bold mt-2">
+0
+</h3>
+
+</div>
+
+<span class="material-symbols-outlined text-primary text-4xl">
+mail
+</span>
+
+</div>
+
+</div>
+
+</div>
+<!-- Management Options -->
+
+<h3
+class="font-display text-2xl text-primary font-bold mb-6">
+
+Management Options
+
+</h3>
+
+<div
+class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+
+<a
+href="sections.html"
+class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition border border-gray-100 text-center">
+
+<div
+class="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+
+<span
+class="material-symbols-outlined text-primary text-2xl">
+
+category
+
+</span>
+
+</div>
+
+<h4 class="font-semibold">
+Categories
+</h4>
+
+<p class="text-xs text-gray-500 mt-1">
+Manage collections
+</p>
+
+</a>
+
+<a
+href="manage.html"
+class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition border border-gray-100 text-center">
+
+<div
+class="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+
+<span
+class="material-symbols-outlined text-primary text-2xl">
+
+collections
+
+</span>
+
+</div>
+
+<h4 class="font-semibold">
+Manage Works
+</h4>
+
+<p class="text-xs text-gray-500 mt-1">
+Catalog items
+</p>
+
+</a>
+
+<a
+href="enquiries.html"
+class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition border border-gray-100 text-center">
+
+<div
+class="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+
+<span
+class="material-symbols-outlined text-primary text-2xl">
+
+mail
+
+</span>
+
+</div>
+
+<h4 class="font-semibold">
+Enquiries
+</h4>
+
+<p class="text-xs text-gray-500 mt-1">
+Customer leads
+</p>
+
+</a>
+
+<a
+href="settings.html"
+class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition border border-gray-100 text-center">
+
+<div
+class="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+
+<span
+class="material-symbols-outlined text-primary text-2xl">
+
+settings
+
+</span>
+
+</div>
+
+<h4 class="font-semibold">
+Settings
+</h4>
+
+<p class="text-xs text-gray-500 mt-1">
+Store configuration
+</p>
+
+</a>
+
+</div>
+
+<!-- Recent Enquiries -->
+
+<div
+class="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
+
+<div
+class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+
+<h3
+class="font-display text-2xl text-primary font-bold">
+
+Recent Customer Enquiries
+
+</h3>
+
+<a
+href="enquiries.html"
+class="text-primary font-semibold text-sm">
+
+View All →
+
+</a>
+
+</div>
+
+<div id="recentEnquiries">
+
+<div
+class="p-10 text-center text-gray-400">
+
+Loading enquiries...
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+async function loadRecentEnquiries(){
+
+try{
+
+const {data,error} =
+await supabase
+.from("enquiries")
+.select("*")
+.order("created_at",{ascending:false})
+.limit(5);
+
+const container =
+document.getElementById(
+"recentEnquiries"
+);
+
+if(error){
+container.innerHTML = `
+<div class="p-8 text-center text-red-500">
+Unable to load enquiries
+</div>
+`;
+return;
+}
+
+if(!data || data.length===0){
+
+container.innerHTML = `
+<div class="p-8 text-center text-gray-500">
+No Data Exists
+</div>
+`;
+
+return;
+}
+
+container.innerHTML =
+data.map(item => `
+
+<div
+class="border-b border-gray-100 p-5">
+
+<div
+class="flex flex-col md:flex-row md:justify-between gap-3">
+
+<div>
+
+<h4
+class="font-semibold text-gray-800">
+
+${item.customer_name || 'Unknown'}
+
+</h4>
+
+<p
+class="text-sm text-gray-500">
+
+${item.phone_number || '-'}
+
+</p>
+
+<p
+class="text-sm mt-2 text-gray-700">
+
+${item.message || ''}
+
+</p>
+
+</div>
+
+<div
+class="text-right">
+
+<span
+class="inline-block px-3 py-1 rounded-full text-xs bg-primary/10 text-primary">
+
+${item.status || 'pending'}
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+`).join("");
+
+}catch(err){
+
+console.error(err);
+
+document.getElementById(
+"recentEnquiries"
+).innerHTML = `
+<div class="p-8 text-center text-red-500">
+Something went wrong
+</div>
+`;
+
+}
+
+}
+
+loadRecentEnquiries();
+</script>
+</main>
+
+<footer
+class="bg-primary text-cream/70 py-5 text-center text-sm mt-auto">
+
+© 2026 Saanvi Boutique & Matching Center
+• Secure Admin Workspace
+
+</footer>
+
+</div>
+
+<!-- Mobile Navigation Drawer -->
+
+<div
+id="mobileDrawer"
+class="fixed inset-0 z-50 hidden">
+
+<div
+id="drawerBackdrop"
+class="absolute inset-0 bg-black/50">
+</div>
+
+<div
+class="absolute right-0 top-0 h-full w-72 bg-primary text-white shadow-2xl p-6">
+
+<div
+class="flex items-center justify-between mb-8">
+
+<h3
+class="font-display text-xl text-cream">
+
+Menu
+
+</h3>
+
+<button
+id="closeDrawer"
+class="text-white">
+
+<span class="material-symbols-outlined">
+close
+</span>
+
+</button>
+
+</div>
+
+<nav
+class="flex flex-col gap-3">
+
+<a
+href="dashboard.html"
+class="bg-white/10 px-4 py-3 rounded-xl">
+
+Dashboard
+
+</a>
+
+<a
+href="sections.html"
+class="px-4 py-3 rounded-xl hover:bg-white/10">
+
+Categories
+
+</a>
+
+<a
+href="receipts.html"
+class="px-4 py-3 rounded-xl hover:bg-white/10">
+
+Receipts
+
+</a>
+
+<a
+href="manage.html"
+class="px-4 py-3 rounded-xl hover:bg-white/10">
+
+Manage Works
+
+</a>
+
+<a
+href="enquiries.html"
+class="px-4 py-3 rounded-xl hover:bg-white/10">
+
+Enquiries
+
+</a>
+
+<a
+href="settings.html"
+class="px-4 py-3 rounded-xl hover:bg-white/10">
+
+Settings
+
+</a>
+
+<button
+onclick="logout()"
+class="mt-6 bg-cream text-primary py-3 rounded-xl font-semibold">
+
+Sign Out
+
+</button>
+
+</nav>
+
+</div>
+
+</div>
+
+<script>
+
+const menuButton =
+document.getElementById(
+"mobileMenuBtn"
+);
+
+const mobileDrawer =
+document.getElementById(
+"mobileDrawer"
+);
+
+const closeDrawer =
+document.getElementById(
+"closeDrawer"
+);
+
+const drawerBackdrop =
+document.getElementById(
+"drawerBackdrop"
+);
+
+if(menuButton){
+
+menuButton.addEventListener(
+"click",
+()=>{
+mobileDrawer.classList.remove("hidden");
+}
+);
+
+}
+
+if(closeDrawer){
+
+closeDrawer.addEventListener(
+"click",
+()=>{
+mobileDrawer.classList.add("hidden");
+}
+);
+
+}
+
+if(drawerBackdrop){
+
+drawerBackdrop.addEventListener(
+"click",
+()=>{
+mobileDrawer.classList.add("hidden");
+}
+);
+
+}
+
+</script>
+
+</body>
+</html>

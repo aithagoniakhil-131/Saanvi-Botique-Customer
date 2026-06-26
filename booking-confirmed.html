@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Confirmed | Saanvi Boutique & Matching Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { burgundy: "#7d2841", cream: "#e6e5b9", "burgundy-dark": "#5c1c30", "cream-light": "#f5f4e4" },
+          fontFamily: { display: ["Playfair Display", "serif"], sans: ["Plus Jakarta Sans", "sans-serif"] },
+          animation: { "scale-in": "scaleIn 0.5s ease-out forwards", "fade-up": "fadeUp 0.6s ease-out forwards" },
+          keyframes: {
+            scaleIn: { "0%": { transform: "scale(0)", opacity: "0" }, "100%": { transform: "scale(1)", opacity: "1" } },
+            fadeUp: { "0%": { opacity: "0", transform: "translateY(20px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="font-sans text-gray-800 bg-cream-light antialiased min-h-screen flex flex-col">
+
+  <header class="bg-burgundy/95 backdrop-blur-md shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <a href="index.html" class="flex items-center gap-3">
+          <img src="logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+          <div>
+            <p class="font-display text-cream text-xl font-semibold leading-tight">Saanvi Boutique</p>
+            <p class="text-cream/70 text-xs tracking-widest uppercase">& Matching Center</p>
+          </div>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center py-20 px-4">
+    <div class="max-w-lg w-full text-center">
+      <div class="w-24 h-24 bg-burgundy rounded-full flex items-center justify-center mx-auto mb-8 animate-scale-in shadow-xl">
+        <svg class="w-12 h-12 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl text-burgundy font-semibold mb-4 animate-fade-up" style="animation-delay: 0.2s;">Booking Confirmed!</h1>
+      <p class="text-gray-600 text-lg leading-relaxed mb-4 animate-fade-up" style="animation-delay: 0.3s;">
+        Thank you for scheduling your consultation with Saanvi Boutique & Matching Center.
+      </p>
+      <p class="text-gray-500 mb-10 animate-fade-up" style="animation-delay: 0.4s;">
+        Our team will review your request and contact you shortly. For urgent queries, call <a href="tel:+917013404312" class="text-burgundy font-semibold hover:underline">+91 7013404312</a> or <a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="text-burgundy font-semibold hover:underline">WhatsApp us</a>.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style="animation-delay: 0.5s;">
+        <a href="index.html" class="px-8 py-3 bg-burgundy text-cream font-semibold rounded-full hover:bg-burgundy-dark transition shadow-lg">Back to Home</a>
+        <a href="collections.html" class="px-8 py-3 border-2 border-burgundy text-burgundy font-semibold rounded-full hover:bg-burgundy/5 transition">Browse Collections</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-burgundy-dark text-cream/80 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-cream/50">
+      <p class="mb-2"><a href="tel:+917013404312" class="hover:text-cream transition">+91 7013404312</a> · <a href="https://wa.me/917013404312" target="_blank" rel="noopener noreferrer" class="hover:text-cream transition">WhatsApp</a></p>
+      <p>&copy; 2026 Saanvi Boutique & Matching Center. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

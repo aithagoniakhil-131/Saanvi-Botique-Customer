@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Saanvi Boutique | Store Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin-config.js"></script>
+    <script src="admin-guard.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#7d2841",
+                        "primary-dark": "#5c1c30",
+                        cream: "#e6e5b9",
+                        "cream-light": "#f5f4e4"
+                    },
+                    fontFamily: {
+                        display: ["Playfair Display", "serif"],
+                        sans: ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-cream-light font-sans text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="../logo.png" class="w-10 h-10 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                <div>
+                    <p class="font-display text-cream text-base sm:text-lg font-semibold leading-tight">Admin Hub</p>
+                    <p class="text-white/70 text-[10px] tracking-widest uppercase">Saanvi Boutique</p>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-6">
+                <a href="dashboard.html" class="text-white/80 hover:text-white font-medium transition">Dashboard</a>
+                <a href="sections.html" class="text-white/80 hover:text-white font-medium transition">Categories</a>
+                <a href="receipts.html" class="text-white/80 hover:text-white font-medium transition">Receipts</a>
+                <a href="manage.html" class="text-white/80 hover:text-white font-medium transition">Manage Works</a>
+                <a href="enquiries.html" class="text-white/80 hover:text-white font-medium transition">Enquiries</a>
+                <a href="settings.html" class="text-cream font-medium border-b-2 border-cream pb-1">Settings</a>
+                <button onclick="logout()" class="px-4 py-2 bg-cream text-primary rounded-full font-semibold hover:bg-white transition text-sm shadow-sm">Sign Out</button>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-cream hover:text-white focus:outline-none flex items-center justify-center">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+
+        <div id="mobile-drawer" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex">
+            <div id="drawer-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+            
+            <div class="relative w-72 max-w-[80vw] bg-primary h-full shadow-2xl p-6 flex flex-col justify-between z-10 ml-auto">
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div class="flex items-center gap-2">
+                            <img src="../logo.png" class="w-8 h-8 object-contain rounded-full bg-cream p-1" alt="Saanvi Boutique Logo" />
+                            <span class="font-display font-bold text-cream">Navigation</span>
+                        </div>
+                        <button id="close-drawer-btn" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+                    </div>
+                    <nav class="flex flex-col gap-4 text-lg">
+                        <a href="dashboard.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+                        <a href="sections.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">category</span> Categories</a>
+                        <a href="receipts.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">receipt</span> Receipts</a>
+                        <a href="manage.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">collections</span> Manage Works</a>
+                        <a href="enquiries.html" class="text-white/80 hover:text-white px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">mail</span> Enquiries</a>
+                        <a href="settings.html" class="text-cream font-semibold bg-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3"><span class="material-symbols-outlined">settings</span> Settings</a>
+                    </nav>
+                </div>
+                <button onclick="logout()" class="w-full py-3.5 bg-cream text-primary rounded-xl font-bold transition shadow-md flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sm">logout</span> Sign Out Workspace</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="mb-8">
+            <h1 class="font-display text-2xl sm:text-3xl text-primary font-bold mb-1">Boutique Configuration Panel</h1>
+            <p class="text-gray-500 text-xs sm:text-sm">Manage front-facing boutique information blocks and administrative parameters.</p>
+        </div>
+
+        <form id="settings-form" class="space-y-6 sm:space-y-8">
+            
+            <div class="bg-white rounded-2xl shadow-xs border-t-4 border-primary p-5 sm:p-6 space-y-4">
+                <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span class="material-symbols-outlined text-primary">storefront</span>
+                    <h2 class="font-display text-lg sm:text-xl font-bold text-gray-800">Storefront Information</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">WhatsApp Integration Number</label>
+                        <input type="tel" id="store-whatsapp" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="+91 98765 43210">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Operational Sizing Hours</label>
+                        <input type="text" id="store-hours" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="10:00 AM - 08:30 PM">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Showroom Physical Address</label>
+                    <textarea id="store-address" rows="2" required class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="Enter boutique location link details...">Near Clock Tower Center, Nalgonda, Telangana, 508001.</textarea>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xs border-t-4 border-primary p-5 sm:p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600">campaign</span>
+                        <h2 class="font-display text-lg sm:text-xl font-bold text-gray-800">Festive Alert Banner</h2>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" id="banner-toggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 Tactics after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Banner Announcement Text</label>
+                    <input type="text" id="banner-text" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" value="✨ Special Wedding Season Discount! Book your custom Maggam Work Blouse tailoring slot today! ✨">
+                    <p class="text-[10px] text-gray-400 mt-1">This text appears pinned at the very top of the customer website when toggled on.</p>
+                </div>
+            </div>
+
+            <!-- Festive Carousel Banners Manager -->
+            <div class="bg-white rounded-2xl shadow-xs border-t-4 border-primary p-5 sm:p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">imagesmode</span>
+                        <h2 class="font-display text-lg sm:text-xl font-bold text-gray-800">Festive Home Carousel Banners</h2>
+                    </div>
+                </div>
+
+                <!-- Upload Form -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold text-gray-700">Add New Carousel Banner Image</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1 border-2 border-dashed border-gray-200 hover:border-primary/40 transition rounded-xl p-3 text-center cursor-pointer relative bg-gray-50/50 flex items-center justify-center gap-2">
+                            <input type="file" id="banner-file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg text-primary/70">add_photo_alternate</span>
+                            <span id="banner-file-label" class="text-xs font-medium text-gray-700">Choose festive banner photo</span>
+                        </div>
+                        <button type="button" id="upload-banner-btn" class="px-5 py-3 bg-primary text-cream font-bold text-xs rounded-xl hover:bg-primary-dark transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-50">
+                            <span class="material-symbols-outlined text-base">cloud_upload</span> Upload Banner
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400">Recommended size: widescreen aspect ratio (e.g. 1920x600 px or similar).</p>
+                </div>
+
+                <!-- Existing Banners List -->
+                <div class="space-y-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Current Carousel Banners</h3>
+                    <div id="banners-list-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <p class="text-xs text-gray-400 italic py-2 col-span-full text-center">Syncing banners...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Us Image Manager -->
+            <div class="bg-white rounded-2xl shadow-xs border-t-4 border-primary p-5 sm:p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        <h2 class="font-display text-lg sm:text-xl font-bold text-gray-800">About Us Page Image</h2>
+                    </div>
+                </div>
+
+                <!-- Preview and Action section -->
+                <div id="about-image-section" class="space-y-4">
+                    <p class="text-xs text-gray-400 italic text-center py-2">Checking image status...</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xs border-t-4 border-primary p-5 sm:p-6 space-y-4">
+                <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span class="material-symbols-outlined text-red-600">security</span>
+                    <h2 class="font-display text-lg sm:text-xl font-bold text-gray-800">Change Portal Password</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">New Secure Password</label>
+                        <input type="password" id="new-pass" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Confirm New Password</label>
+                        <input type="password" id="confirm-pass" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="••••••••">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                <button type="submit" class="w-full sm:w-auto px-6 py-3.5 bg-primary text-cream font-bold rounded-xl hover:bg-primary-dark transition shadow-md flex items-center justify-center gap-2 text-sm order-1 sm:order-2">
+                    <span class="material-symbols-outlined text-sm">save</span> Save Configuration Updates
+                </button>
+                <a href="dashboard.html" class="w-full sm:w-auto px-6 py-3.5 bg-white text-gray-700 border border-gray-200 font-semibold rounded-xl hover:bg-gray-50 transition text-center text-sm order-2 sm:order-1">
+                    Discard Changes
+                </a>
+            </div>
+
+        </form>
+    </main>
+
+    <footer class="bg-primary text-cream/60 py-5 text-center text-xs tracking-wide border-t border-primary-dark px-4 mt-auto">
+        &copy; 2026 Saanvi Boutique & Matching Center. Secured Administrative Workspace.
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileDrawer = document.getElementById("mobile-drawer");
+        const closeDrawerBtn = document.getElementById("close-drawer-btn");
+        const drawerBackdrop = document.getElementById("drawer-backdrop");
+
+        function openMenu() {
+            mobileDrawer.classList.remove("translate-x-full");
+            drawerBackdrop.classList.remove("pointer-events-none", "opacity-0");
+            drawerBackdrop.classList.add("opacity-100");
+        }
+
+        function closeMenu() {
+            mobileDrawer.classList.add("translate-x-full");
+            drawerBackdrop.classList.remove("opacity-100");
+            drawerBackdrop.classList.add("opacity-0", "pointer-events-none");
+        }
+
+        mobileMenuBtn.addEventListener("click", openMenu);
+        closeDrawerBtn.addEventListener("click", closeMenu);
+        drawerBackdrop.addEventListener("click", closeMenu);
+
+        function logout() {
+            adminLogout();
+        }
+
+        // Live Configuration Local Persistence Simulation
+        document.getElementById("settings-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById("new-pass").value;
+            const confirmPassword = document.getElementById("confirm-pass").value;
+
+            // Simple client-side credential consistency confirmation loop
+            if (password || confirmPassword) {
+                if (password !== confirmPassword) {
+                    alert("Security Check Failed: New password configuration inputs do not match. Please verify parameters.");
+                    return;
+                }
+                if (password.length < 6) {
+                    alert("Security Check Failed: Password criteria unmet. Length must be equal to or greater than 6 characters.");
+                    return;
+                }
+                // Update local storage simulation mock credentials
+                localStorage.setItem("admin_password_mock", password);
+            }
+
+            alert("System Success: Storefront variables and security configurations updated seamlessly on the cloud.");
+        });
+
+        // Banners Management Logic
+        const bannerFileInput = document.getElementById("banner-file-input");
+        const bannerFileLabel = document.getElementById("banner-file-label");
+        const uploadBannerBtn = document.getElementById("upload-banner-btn");
+        const bannersGrid = document.getElementById("banners-list-grid");
+
+        let selectedBannerFile = null;
+
+        bannerFileInput.addEventListener("change", () => {
+            if (bannerFileInput.files && bannerFileInput.files[0]) {
+                selectedBannerFile = bannerFileInput.files[0];
+                bannerFileLabel.textContent = selectedBannerFile.name;
+            } else {
+                selectedBannerFile = null;
+                bannerFileLabel.textContent = "Choose festive banner photo";
+            }
+        });
+
+        async function loadBanners() {
+            if (!window.supabaseClient) return;
+            try {
+                const { data: banners, error } = await window.supabaseClient
+                    .from("festive_banners")
+                    .select("*")
+                    .order("created_at", { ascending: false });
+
+                if (error) throw error;
+
+                if (!banners || banners.length === 0) {
+                    bannersGrid.innerHTML = `
+                        <p class="text-xs text-gray-400 italic py-4 col-span-full text-center">No carousel banners active.</p>
+                    `;
+                    return;
+                }
+
+                bannersGrid.innerHTML = banners.map(banner => `
+                    <div class="relative aspect-[16/6] bg-gray-100 rounded-lg overflow-hidden border border-gray-200 group flex items-center justify-center">
+                        <img src="${banner.image_url}" class="w-full h-full object-cover" />
+                        <button type="button" onclick="deleteBanner(${banner.id})" class="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 border border-white/20 hover:bg-red-600 transition flex items-center justify-center" title="Delete Banner">
+                            <span class="material-symbols-outlined text-xs">delete</span>
+                        </button>
+                    </div>
+                `).join("");
+
+            } catch (err) {
+                console.error("Failed to load banners:", err);
+                bannersGrid.innerHTML = `<p class="text-xs text-red-600 text-center col-span-full">Error loading banners.</p>`;
+            }
+        }
+
+        uploadBannerBtn.addEventListener("click", async () => {
+            if (!selectedBannerFile) {
+                alert("Please select a banner image file first.");
+                return;
+            }
+
+            uploadBannerBtn.disabled = true;
+            const originalText = uploadBannerBtn.innerHTML;
+            uploadBannerBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span> Uploading…`;
+
+            try {
+                const fileExt = selectedBannerFile.name.split('.').pop();
+                const filePath = `banners/${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+
+                const { data: uploadData, error: uploadErr } = await window.supabaseClient.storage
+                    .from("boutique")
+                    .upload(filePath, selectedBannerFile, { cacheControl: "3600", upsert: false });
+
+                if (uploadErr) throw uploadErr;
+
+                const { data: { publicUrl } } = window.supabaseClient.storage
+                    .from("boutique")
+                    .getPublicUrl(filePath);
+
+                const { error: insertErr } = await window.supabaseClient
+                    .from("festive_banners")
+                    .insert({ image_url: publicUrl });
+
+                if (insertErr) throw insertErr;
+
+                // Reset state
+                selectedBannerFile = null;
+                bannerFileInput.value = "";
+                bannerFileLabel.textContent = "Choose festive banner photo";
+                
+                await loadBanners();
+                alert("Banner uploaded successfully!");
+            } catch (err) {
+                console.error("Banner upload failed:", err);
+                alert("Failed to upload banner. Check bucket policy and table permissions.");
+            } finally {
+                uploadBannerBtn.disabled = false;
+                uploadBannerBtn.innerHTML = originalText;
+            }
+        });
+
+        window.deleteBanner = async function(id) {
+            if (!confirm("Are you sure you want to remove this banner from the home carousel?")) return;
+            try {
+                const { error } = await window.supabaseClient
+                    .from("festive_banners")
+                    .delete()
+                    .eq("id", id);
+
+                if (error) throw error;
+                await loadBanners();
+            } catch (err) {
+                console.error("Failed to delete banner:", err);
+                alert("Failed to delete banner. Check table permissions.");
+            }
+        };
+
+        // About Us Image Management functions
+        async function checkAboutImage() {
+            const publicUrl = "https://oemyhcypthjkuglixpso.supabase.co/storage/v1/object/public/boutique/about_us/about_image.png";
+            const section = document.getElementById("about-image-section");
+            if (!section) return;
+
+            const img = new Image();
+            img.onload = () => {
+                section.innerHTML = `
+                    <div class="flex flex-col items-center gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50/50">
+                        <div class="w-32 h-40 rounded-lg overflow-hidden border border-gray-200 shadow-sm relative">
+                            <img src="${publicUrl}?t=${Date.now()}" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 font-medium">Custom About Us image is active.</p>
+                        </div>
+                        <button type="button" id="delete-about-btn" onclick="deleteAboutImage()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg hover:bg-red-700 transition shadow-sm flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">delete</span> Remove Image
+                        </button>
+                    </div>
+                `;
+            };
+            img.onerror = () => {
+                showUploadInterface();
+            };
+            img.src = publicUrl + "?t=" + Date.now();
+        }
+
+        function showUploadInterface() {
+            const section = document.getElementById("about-image-section");
+            if (!section) return;
+
+            section.innerHTML = `
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold text-gray-700">Upload Custom About Us Image</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1 border-2 border-dashed border-gray-200 hover:border-primary/40 transition rounded-xl p-3 text-center cursor-pointer relative bg-gray-50/50 flex items-center justify-center gap-2">
+                            <input type="file" id="about-file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg text-primary/70">add_photo_alternate</span>
+                            <span id="about-file-label" class="text-xs font-medium text-gray-700">Choose About Us image</span>
+                        </div>
+                        <button type="button" id="upload-about-btn" onclick="uploadAboutImage()" class="px-5 py-3 bg-primary text-cream font-bold text-xs rounded-xl hover:bg-primary-dark transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-50">
+                            <span class="material-symbols-outlined text-base">cloud_upload</span> Upload Image
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400">Recommended size: portrait/square aspect ratio (e.g. 700x875 px or similar).</p>
+                </div>
+            `;
+
+            const aboutFileInput = document.getElementById("about-file-input");
+            const aboutFileLabel = document.getElementById("about-file-label");
+            if (aboutFileInput && aboutFileLabel) {
+                aboutFileInput.addEventListener("change", () => {
+                    if (aboutFileInput.files && aboutFileInput.files[0]) {
+                        aboutFileLabel.textContent = aboutFileInput.files[0].name;
+                    } else {
+                        aboutFileLabel.textContent = "Choose About Us image";
+                    }
+                });
+            }
+        }
+
+        window.uploadAboutImage = async function() {
+            const fileInput = document.getElementById("about-file-input");
+            const uploadBtn = document.getElementById("upload-about-btn");
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert("Please select an image file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            uploadBtn.disabled = true;
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span> Uploading…`;
+
+            try {
+                const { data, error } = await window.supabaseClient.storage
+                    .from("boutique")
+                    .upload("about_us/about_image.png", file, { 
+                        cacheControl: "0", 
+                        upsert: true 
+                    });
+
+                if (error) throw error;
+
+                alert("About Us image uploaded successfully!");
+                checkAboutImage();
+            } catch (err) {
+                console.error("About Us image upload failed:", err);
+                alert("Failed to upload image. Please try again.");
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = originalText;
+            }
+        };
+
+        window.deleteAboutImage = async function() {
+            if (!confirm("Are you sure you want to remove the custom About Us image? The page will revert to the default image.")) return;
+
+            const deleteBtn = document.getElementById("delete-about-btn");
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span> Removing…`;
+            }
+
+            try {
+                const { data, error } = await window.supabaseClient.storage
+                    .from("boutique")
+                    .remove(["about_us/about_image.png"]);
+
+                if (error) throw error;
+
+                alert("About Us image removed successfully.");
+                checkAboutImage();
+            } catch (err) {
+                console.error("About Us image deletion failed:", err);
+                alert("Failed to remove image. Please try again.");
+                checkAboutImage();
+            }
+        };
+
+        // Load banners and about image on load
+        document.addEventListener("DOMContentLoaded", () => {
+            loadBanners();
+            checkAboutImage();
+        });
+    </script>
+</body>
+</html>

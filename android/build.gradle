@@ -34,6 +34,22 @@ subprojects {
                 }
             }
         }
+        
+        // Force Java toolchain version to 17 to bypass plugin Java 21 defaults
+        try {
+            def javaExtension = project.extensions.findByName("java")
+            if (javaExtension != null) {
+                javaExtension.toolchain.languageVersion = JavaLanguageVersion.of(17)
+            }
+        } catch (Exception e) {}
+
+        // Force Kotlin toolchain to 17 if active
+        try {
+            def kotlinExtension = project.extensions.findByName("kotlin")
+            if (kotlinExtension != null) {
+                kotlinExtension.jvmToolchain(17)
+            }
+        } catch (Exception e) {}
     }
 }
 

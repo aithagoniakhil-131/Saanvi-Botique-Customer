@@ -614,56 +614,34 @@
           useCORS: true
         });
 
-        // 1. Try Capacitor Native Sharing (for Capacitor Android/iOS Wrapper App)
-        if (window.Capacitor && window.Capacitor.Plugins) {
-          const { Share: CapShare, Filesystem: CapFilesystem } = window.Capacitor.Plugins;
-          if (CapShare && CapFilesystem) {
-            try {
-              const customerName = customerInput.value.trim();
-              const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
-              const dataUrl = canvas.toDataURL('image/png');
-              const base64Data = dataUrl.split(',')[1];
-              
-              // Write image to Cache directory
-              await CapFilesystem.writeFile({
-                path: fileName,
-                data: base64Data,
-                directory: 'CACHE'
-              });
-              
-              // Get the file URI
-              const uriRes = await CapFilesystem.getUri({
-                path: fileName,
-                directory: 'CACHE'
-              });
-              
-              const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
-              
-              // Launch native Share Sheet
-              await CapShare.share({
-                title: 'Saanvi Boutique Receipt',
-                text: shareText,
-                files: [uriRes.uri]
-              });
-              
-              resetButton();
-              return;
-            } catch (capErr) {
-              console.error('Capacitor native share failed, falling back to web flow:', capErr);
-            }
+        // 1. Try Native Android Share Bridge (for Capacitor Wrapper App)
+        if (window.AndroidShare && typeof window.AndroidShare.shareImage === 'function') {
+          try {
+            const customerName = customerInput.value.trim();
+            const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
+            const dataUrl = canvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+            const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
+            
+            window.AndroidShare.shareImage(base64Data, fileName, shareText);
+            resetButton();
+            return;
+          } catch (nativeErr) {
+            console.error('Native Android share bridge failed, falling back to web flow:', nativeErr);
           }
         }
-        
+
+        // Convert canvas directly to blob
         canvas.toBlob(async (blob) => {
           if (!blob) {
             alert('Failed to convert receipt to an image.');
             resetButton();
             return;
           }
-          
+
           const customerName = customerInput.value.trim();
+          const invoiceNo = invoiceInput.value.trim() || `SB-${Date.now()}`;
           const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
-          const file = new File([blob], fileName, { type: 'image/png' });
           
           const whatsappPhoneInput = document.getElementById('customer-whatsapp');
           let customerPhone = whatsappPhoneInput ? whatsappPhoneInput.value.trim() : '';
@@ -672,65 +650,55 @@
             customerPhone = '91' + customerPhone;
           }
 
-          const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
-
-          // 1. Try Mobile/Native Web Share API first (highly recommended for mobile phones)
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: 'Saanvi Boutique Receipt',
-                text: shareText
-              });
-              resetButton();
-              return;
-            } catch (shareErr) {
-              console.log('Native share failed or cancelled, trying clipboard...', shareErr);
-            }
-          }
-
-          // 2. Try copying image to clipboard
-          let copied = false;
+          // We upload the image to Supabase Storage and share the link
+          const filePath = `receipts/${invoiceNo.replace(/[^a-zA-Z0-9_-]/g, '_')}.png`;
+          
           try {
-            await navigator.clipboard.write([
-              new ClipboardItem({
-                'image/png': blob
-              })
-            ]);
-            copied = true;
-          } catch (clipErr) {
-            console.warn('Clipboard image copy failed, using download fallback:', clipErr);
-          }
+            // Upload blob to Supabase Storage
+            const { data: uploadData, error: uploadErr } = await window.supabaseClient.storage
+              .from("boutique")
+              .upload(filePath, blob, { cacheControl: "0", upsert: true });
 
-          const whatsappMsgText = copied
-            ? `${shareText} (Please paste the copied receipt image directly into this chat)`
-            : `${shareText} (Please attach the downloaded receipt image: ${fileName})`;
-          
-          const whatsappMsg = encodeURIComponent(whatsappMsgText);
-          const targetUrl = customerPhone 
-            ? `https://api.whatsapp.com/send?phone=${customerPhone}&text=${whatsappMsg}`
-            : `https://api.whatsapp.com/send?text=${whatsappMsg}`;
+            if (uploadErr) throw uploadErr;
 
-          if (copied) {
+            // Get public URL
+            const { data: { publicUrl } } = window.supabaseClient.storage
+              .from("boutique")
+              .getPublicUrl(filePath);
+
+            // Construct WhatsApp message with public URL link
+            const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}: ${publicUrl} . Thank you for choosing us!`;
+            const whatsappMsg = encodeURIComponent(shareText);
+            const targetUrl = customerPhone 
+              ? `https://api.whatsapp.com/send?phone=${customerPhone}&text=${whatsappMsg}`
+              : `https://api.whatsapp.com/send?text=${whatsappMsg}`;
+
+            // Open WhatsApp
             window.open(targetUrl, '_blank');
-            alert('Receipt image copied to your clipboard! Opening WhatsApp... You can now simply PASTE (Ctrl+V or tap Paste) the receipt image directly into the chat.');
             resetButton();
-            return;
-          }
+          } catch (uploadErr) {
+            console.error('Supabase upload failed, falling back to local file download:', uploadErr);
+            
+            // Fallback: download locally
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
 
-          // 3. Fallback: Download file locally and open WhatsApp
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          
-          window.open(targetUrl, '_blank');
-          alert('Clipboard copy is not supported in this browser. The receipt has been downloaded to your device! Opening WhatsApp... Please attach the downloaded image.');
-          resetButton();
+            const shareTextFallback = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. (Please attach the downloaded receipt image: ${fileName})`;
+            const whatsappMsgFallback = encodeURIComponent(shareTextFallback);
+            const targetUrlFallback = customerPhone 
+              ? `https://api.whatsapp.com/send?phone=${customerPhone}&text=${whatsappMsgFallback}`
+              : `https://api.whatsapp.com/send?text=${whatsappMsgFallback}`;
+
+            window.open(targetUrlFallback, '_blank');
+            alert('Upload failed. The receipt has been downloaded to your device! Opening WhatsApp... Please attach the downloaded image.');
+            resetButton();
+          }
         }, 'image/png');
         
       } catch (err) {

@@ -615,15 +615,28 @@
         });
 
         // 1. Try Native Android Share Bridge (for Capacitor Wrapper App)
-        if (window.AndroidShare && typeof window.AndroidShare.shareImage === 'function') {
+        if (window.AndroidShare) {
           try {
             const customerName = customerInput.value.trim();
+            const whatsappPhoneInput = document.getElementById('customer-whatsapp');
+            let customerPhone = whatsappPhoneInput ? whatsappPhoneInput.value.trim() : '';
+            customerPhone = customerPhone.replace(/\D/g, '');
+            if (customerPhone.length === 10) {
+              customerPhone = '91' + customerPhone;
+            }
+
             const fileName = `Saanvi_Boutique_Receipt_${customerName.replace(/\s+/g, '_') || 'Customer'}.png`;
             const dataUrl = canvas.toDataURL('image/png');
             const base64Data = dataUrl.split(',')[1];
             const shareText = `Here is your receipt from Saanvi Boutique${customerName ? ' for ' + customerName : ''}. Thank you for choosing us!`;
             
-            window.AndroidShare.shareImage(base64Data, fileName, shareText);
+            if (typeof window.AndroidShare.shareImageWithPhone === 'function') {
+              window.AndroidShare.shareImageWithPhone(base64Data, fileName, shareText, customerPhone);
+            } else if (typeof window.AndroidShare.shareImage === 'function') {
+              window.AndroidShare.shareImage(base64Data, fileName, shareText);
+            } else {
+              throw new Error("No sharing method found on AndroidShare");
+            }
             resetButton();
             return;
           } catch (nativeErr) {
